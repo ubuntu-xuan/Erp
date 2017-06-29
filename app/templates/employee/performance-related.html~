@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}仓库管理{% endblock%}
+
+
+{% block styles %}
+    {{ super() }}
+    <style>
+     #fittings_ModalLabel{text-align:center}
+    </style>
+
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4 align="center" >员工绩效记录</h4>
+
+                </div>
+                
+            </div>
+
+            <div id="toolbar">
+                <button id="remove" class="btn btn-danger" disabled>
+                    <i class="glyphicon glyphicon-remove"></i> 删除
+                </button>
+
+                <button id="add" class="btn btn-success" >
+                    <i class="glyphicon glyphicon-plus"></i> 增加
+                </button>
+            </div>
+
+            <br>
+            <div class="row" >
+                <div class="col-md-12" >
+
+                    <ul id="myTab" class="nav nav-tabs">
+	               <li class="active"><a href="#Jan" data-toggle="tab">一月</a></li>
+	               <li><a href="#Feb" data-toggle="tab">二月</a></li>
+	               <li><a href="#Mar" data-toggle="tab">三月</a></li>
+	               <li><a href="#Api" data-toggle="tab">四月</a></li>
+	               <li><a href="#May" data-toggle="tab">五月</a></li>
+	               <li><a href="#Jun" data-toggle="tab">六月</a></li>
+	               <li><a href="#Jul" data-toggle="tab">七月</a></li>
+	               <li><a href="#Feb" data-toggle="tab">八月</a></li>
+	               <li><a href="#Mar" data-toggle="tab">九月</a></li>
+	               <li><a href="#Sep" data-toggle="tab">十月</a></li>
+	               <li><a href="#Oct" data-toggle="tab">十一月</a></li>
+	               <li><a href="#Dec" data-toggle="tab">十二月</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+
+   <div class="tab-pane fade" id="Mar">
+         
+                        <div class="fixed-table-container" >
+                            <div class="fixed-table-header" >
+                                <table class="table table-hover  " id="table" >
+
+                                </table>
+                            </div>
+                        </div>
+
+   </div>
+
+</div>
+
+
+
+
+                    </div>
+            </div>
+        </div>
+        </div>
+        <!-- /page content -->
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+  
+        function initTable() {
+        window.operateEvents = {
+
+
+
+
+        };
+        
+       
+        
+        //先销毁表格
+{#        $('#table').bootstrapTable('destroy');#}
+        //初始化表格,动态从服务器加载数据
+        $("#table").bootstrapTable({
+{#            method: "get",  //使用get请求到服务器获取数据#}
+            url: '/repertory/goods_price/return_json',
+            striped: true,  //表格显示条纹
+            pagination: true, //启动分页
+            pageSize: 50,  //每页显示的记录数
+            pageNumber:1, //当前第几页
+            pageList: [5, 10, 15, 20, 25,100,150,200],  //记录数可选列表
+            search: true,  //是否启用查询
+            showColumns: true,  //显示下拉框勾选要显示的列
+            showRefresh: true,  //显示刷新按钮
+            singleSelect: true,
+            checkboxHeader:true,
+            detailFormatter:true,
+            checkboxHeader:true,
+            uniqueId:"id",
+            toolbar: '#toolbar',
+            toolbarAlign:"left",
+            sidePagination: "client",
+            paginationVAlign:'top',
+            paginationHAlign:'right',
+            showExport:true,
+            exportDataType: 'all',
+//            basic', 'all', 'selected' 
+            sortOrder: 'desc',
+            locale: "zh-CN",
+            showFooter:false,
+            columns: [{
+                field: 'state',
+                checkbox: true,
+
+            },{
+                field: 'id',
+                title: 'ID',
+                align: 'center',
+                sortable: true,
+
+            },{
+                field: 'name',
+                title: '名称/型号',
+                align: 'center',   
+                sortable: true,    
+                editable: {
+                    type: 'text',
+                    emptytext: "-",  
+                    title: '名称/型号(不能重复)',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },
+            },{
+                field: 'price',
+                title: '价格(¥)',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "-",  
+                    title: '单价(¥)',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },         
+               
+            },{
+                field: 'nums',
+                title: '实时库存量',
+                align: 'center',
+         
+               
+            },{
+                field: 'remark',
+                title: '备注',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "-",  
+                    title: '备注',
+                },         
+               
+            }],
+
+
+
+            queryParamsType : "undefined",
+
+            onEditableSave: function (field, row, oldValue, $el) {
+                $.ajax({
+                    type: "post",
+                    url: "/repertory/goods_price",
+                    data: {
+                        'row':row,
+                        'oldValue':oldValue,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            alert('提交数据成功');
+                        }
+                    },
+
+                    complete: function () {
+
+                    }
+                });
+            }
+        });
+        
+
+
+
+
+
+
+      }
+
+      $(document).ready(function () {
+
+
+      $('#myTab a').click(function (e) {
+  
+         var href = $(this).attr('href');
+
+         if(href=='#Jan'){
+             //alert('111');
+             window.location.href = "{{ url_for('main.performance_related') }}" + '_Jan';
+         }else if(href=='#Feb'){
+             window.location.href = "{{ url_for('main.performance_related') }}" + '_Feb';
+         }else{
+               $(this).tab('show');   
+         }
+   
+
+         e.preventDefault();  
+
+       }) 
+
+
+
+          //调用函数，初始化表格
+          initTable();
+
+          function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+          }
+
+          function getNameSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.name
+            });
+          }
+
+          var $table = $('#table'),$remove = $('#remove'),$add = $('#add');
+
+          selections = [];
+
+          $table.on('page-change.bs.table', function () {
+            $('#table').bootstrapTable('scrollTo', '10px');
+          });
+
+
+          $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+            $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+
+            // save your data, here just save the current page
+                selections = getIdSelections();
+            // push or splice the selections if you want to save all data selections
+
+            });
+
+          $table.on('all.bs.table', function (e, name, args) {
+            console.log(name, args);
+          });
+
+
+          $remove.click(function () {
+            var ids = getIdSelections();
+            var remove_name = getNameSelections();
+
+            $.ajax({
+                    type:'POST',
+                    url:'/repertory/goods_price',
+                    async: false,
+                    data:{
+                        'ids':ids,
+                        'remove_name':remove_name
+                    },
+                    dataType:'json',
+                    success:function(data){},
+                    error:function(xhr,type){}
+             });
+
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            });
+
+            $remove.prop('disabled', true);
+          });
+
+          $add.click(function(){
+{#              var ids = getIdSelections();#}
+              $.ajax({
+                    type: "post",
+                    url: "/repertory/goods_price",
+                    async: false,
+                    data:{
+{#                        'ids':ids,#}
+                        'add':'add_true'
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            alert('提交数据成功');
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+                    }
+                });
+
+              $table.bootstrapTable('refresh', {url: '/repertory/goods_price/return_json'});
+              $table.bootstrapTable('selectPage','last')
+          });
+
+
+      });
+
+    </script>
+
+{% endblock %}
+
+  </body>
+</html>

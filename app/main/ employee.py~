@@ -1,0 +1,26 @@
+# -*- coding:utf-8 -*-
+__author__ = 'xuan'
+
+from flask import render_template,request,current_app,redirect,url_for,send_from_directory
+from  . import  main
+from flask.ext.login import login_required,current_user,login_user,logout_user
+import json,MySQLdb,sys
+from  manage import  db  #不添加这个会不能更新数据库
+from ..models import Clients
+import json
+import time
+import string
+from manage import app
+import os
+import simplejson
+from config import config
+
+reload(sys) 
+sys.setdefaultencoding('utf8') 
+
+@main.route('/employee/performance_related',methods = ['GET','POST'])
+@login_required
+def performance_related():
+
+
+    return render_template("employee/performance-related.html")

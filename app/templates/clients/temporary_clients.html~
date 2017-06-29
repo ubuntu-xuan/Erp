@@ -1,0 +1,626 @@
+{% extends "base.html" %}
+
+{% block title %}订单管理{% endblock%}
+
+
+{% block styles %}
+    {{ super() }}
+    <style>
+       .modal-title{text-align:center}
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4 align="center" >客户信息记录(临时)</h4>
+<div id="text" value="123"  data-name="黑哒哒的盟友"><div>
+                </div>
+            </div>
+
+            <div id="toolbar">
+                <button id="remove" class="btn btn-danger" disabled>
+                    <i class="glyphicon glyphicon-remove"></i> 删除
+                </button>
+
+                <button id="add" class="btn btn-success" >  
+                    <i class="glyphicon glyphicon-plus"></i> 增加
+                </button>    
+
+
+            </div>
+
+            <br>
+            <div class="row" >
+                    <div class="col-md-12" >
+                        <div class="fixed-table-container" >
+                            <div class="fixed-table-header" >
+                                <table class="table table-hover  " id="table" >
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+
+        <!-- 跟踪信息模态框（Modal） -->
+	<div class="modal fade" id="trace_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="myModalLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:950px;">
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title"  >
+               	        客户跟踪详情记录
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='form' role="form" method="post"  > 
+                  <i class="glyphicon glyphicon-tags"></i>   跟踪记录---><span class='trace_id'></span>.<span class='trace_company'></span>
+                  <textarea name="trace_textarea" class="form-control  trace_textarea " style="height:450px"></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='trace_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+        <!-- 服务编号模态框（Modal） -->
+	<div class="modal fade" id="service_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="serviceLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title"  >
+               	        服务编号
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='form' role="form" method="post"  > 
+                  <i class="glyphicon glyphicon-tags"></i>   服务编号---><span class='service_id'></span>.<span class='service_company'></span>
+                  <textarea name="service_textarea" class="form-control  service_textarea " style="height:200px"></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='service_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+        <script>
+
+        //客户信息表
+        function initTable() {
+         window.operateEvents = {
+            'click .trace': function (e, value, row, index) {
+               $('#trace_Modal').modal('toggle'); 
+               var data = {
+                   data:JSON.stringify({"trace_no":row.id,"company_name":row.company_name}) 
+               } 
+
+                 $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+
+                            $('.trace_textarea').val(data['tracts'])//获取后台的跟踪信息
+                            $('.trace_id').text(row.id) //为span赋值要用text
+                            $('.trace_company').text(row.company_name)
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+            },
+
+            'click .service_no': function (e, value, row, index) {
+               $('#service_Modal').modal('toggle'); 
+
+               var data_service = {
+                   data:JSON.stringify({"trace_no":row.id,"company_name":row.company_name}) 
+               } 
+
+                 $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    async: false,
+                    data:data_service,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                             
+                            $('.service_textarea').val(data['service_no'])//获取后台的服务编号 
+                            $('.service_id').text(row.id) //为span赋值要用text
+                            $('.service_company').text(row.company_name)
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+            },
+
+
+
+
+         
+         };
+
+        //先销毁表格
+{#        $('#table').bootstrapTable('destroy');#}
+        //初始化表格,动态从服务器加载数据
+        $("#table").bootstrapTable({
+{#            method: "get",  //使用get请求到服务器获取数据#}
+            url: '/temporary_clients/return_json',
+            striped: true,  //表格显示条纹
+            pagination: true, //启动分页
+            showToggle:true,
+            pageSize: 50,  //每页显示的记录数
+            pageNumber:1, //当前第几页
+            pageList: [5, 10, 15, 20, 25,50,100,150,200],  //记录数可选列表
+            search: true,  //是否启用查询
+            showColumns: true,  //显示下拉框勾选要显示的列
+            showRefresh: true,  //显示刷新按钮
+            singleSelect: true,
+            checkboxHeader:true,
+            detailFormatter:true,
+            checkboxHeader:true,
+            clickToSelect: false,
+            uniqueId:"id",
+            toolbar: '#toolbar',
+            toolbarAlign:"left",
+            sidePagination: "client",
+            paginationVAlign:'top',
+            paginationHAlign:'right',
+            showExport:true,
+            exportDataType: 'all',
+{#            basic', 'all', 'selected'.#}
+            sortOrder: 'desc',
+            locale: "zh-CN",
+            columns: [{
+                field: 'state',
+                checkbox: true,
+
+            },{
+                field: 'id',
+                title: 'ID',
+                align: 'center',
+                sortable: true,
+
+            },{
+                field: 'client_no',
+                title: '客户编号',
+                align: 'center',
+                sortable: true,
+
+                editable: {
+                    type: 'text',
+                    name:'client_num', 
+                    title: '客户编号',
+                    emptytext: '客户编号',
+                    clear:true, 
+
+                },
+            },{
+                field: 'operate',
+                title: '操作',
+                align: 'center',
+                events: operateEvents,
+                formatter: operateFormatter
+            },{
+                field: 'company_name',
+                title: '公司名称',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '公司名称',
+                    emptytext: '公司名称',
+
+                },
+            },{
+                field: 'license',
+                title: '执照编号',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '执照编号',
+                    emptytext: '执照编号',
+
+                }
+            },{
+                field: 'contact',
+                title: '联系人',
+                align: 'center',
+
+                
+                editable: {
+                    type: 'text',
+                    title: '联系人',
+                    emptytext: '联系人',
+                }
+            },{
+                field: 'position',
+                title: '职位',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '职位',
+                    emptytext: 'empty',
+   
+                }
+
+            },{
+                field: 'cellphone',
+                title: '手机号码',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '手机号码',
+                    emptytext: '手机号码',
+  
+                }
+
+            },{
+                field: 'telephone',
+                title: '固定电话',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '固定电话',
+                    emptytext: 'empty',
+    
+                }
+            },{
+                field: 'email',
+                title: '邮箱',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '邮箱',
+                    emptytext: '邮箱',
+ 
+                }
+            },{
+                field: 'qq',
+                title: 'QQ或微信',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: 'QQ或微信',
+                    emptytext: 'QQ或微信',
+
+                }
+            },{
+                field: 'adress',
+                title: '详细地址',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '详细地址',
+                    emptytext: '详细地址',
+
+                }
+            },{
+                field: 'saler',
+                title: '业务代表',
+                align: 'center',
+            },{
+                field: 'status',
+                title: '状态',
+                align: 'center',
+                editable: {
+                    type: 'select',
+                    title: '状态',
+                    emptytext: '选择',
+                    source: [
+                         { value: '成交', text: '成交' },
+                         { value: '了解', text: '了解' },
+                         { value: '待跟进', text: '待跟进' },
+                         { value: '借测', text: '借测' },
+                    ]
+
+
+                }
+            }],
+
+
+            queryParamsType : "undefined",
+
+            onEditableSave: function (field, row, oldValue, $el) {
+                $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    data: {
+                        'row':row,
+                        'oldValue':oldValue,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            //alert('提交数据成功');
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+
+                    }
+                });
+            }
+        });
+
+        function operateFormatter(value, row, index) {
+             //var name = getNameSelections();
+                return [
+                  '<a class="service_no" href="javascript:;"    title="服务编号" >',
+                  '<i class="glyphicon glyphicon-edit"></i>','服务编号',
+                     
+                  '</a>',' ', 
+                  '<a class="trace" href="javascript:;"    title="跟踪详情" >',
+                  '<i class="glyphicon glyphicon-edit"></i>','跟踪',    
+                  '</a>',' ',
+           ].join('');
+        }
+
+      }
+
+      $(document).ready(function () {
+          //alert('log');
+   
+          //var ms = $('.editable').attr("data-name");
+          //alert(mess);
+          console.log("Sample log");
+    
+ 
+          //调用函数，初始化表格
+          initTable();
+
+
+          function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+          }
+
+          function getNameSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.company_name
+            });
+          }
+
+ 
+          var $table = $('#table'),$remove = $('#remove'),$add = $('#add'),$create = $('#create');
+        
+          selections = [];
+                   
+          $table.on('page-change.bs.table', function () {
+            $('#table').bootstrapTable('scrollTo', '10px');
+          });
+    
+           
+          $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+            $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+            
+            // save your data, here just save the current page
+                selections = getIdSelections();
+            // push or splice the selections if you want to save all data selections
+
+            });
+          
+
+           
+          $table.on('all.bs.table', function (e, name, args) {
+            console.log(name, args);
+          });
+
+
+          $remove.click(function () {
+            var remove_id = getIdSelections();
+            var remove_name = getNameSelections();
+
+            $.ajax({
+                    type:'POST',
+                    url:'/temporary_clients',
+                    async: false,
+                    data:{
+                        'remove_id':remove_id,
+                        'remove_name':remove_name,
+                    },
+                    dataType:'json',
+                    success:function(data){},
+                    error:function(xhr,type){}
+             });
+
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: remove_id  //对应var remove_id = getIdSelections();
+            });
+
+            $remove.prop('disabled', true);
+          });
+
+          $add.click(function(){
+              $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    async: false,
+                    data:{
+                        'add':'add_true'
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            alert('提交数据成功');
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+                    }
+                });
+
+              $table.bootstrapTable('refresh', {url: '/temporary_clients/return_json'});
+              $table.bootstrapTable('selectPage','last')
+          });
+          
+
+          $('#trace_save').click(function() {
+                 var trace_textarea = $('.trace_textarea').val()   
+                 var trace_id = $('.trace_id').text()
+                 var trace_company = $('.trace_company').text()
+ 
+                 $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    async: false,
+                    data:{
+                       "trace_textarea":trace_textarea,
+                       "trace_id": trace_id,
+                       "trace_company":trace_company
+
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+
+                            
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                
+                $('#trace_Modal').modal('hide'); 
+
+               //$('#form').submit();
+              
+               //window.location.href = "{{ url_for('main.production_orders') }}";
+               
+          }) 
+
+          $('#service_save').click(function() {
+                 var service_textarea = $('.service_textarea').val()   
+                 var service_id = $('.service_id').text()
+                 var service_company = $('.service_company').text()
+ 
+                 $.ajax({
+                    type: "post",
+                    url: "/temporary_clients",
+                    async: false,
+                    data:{
+                       "service_textarea":service_textarea,
+                       "service_id": service_id,
+                       "service_company":service_company
+
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+
+                            
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                
+                $('#service_Modal').modal('hide'); 
+
+               //$('#form').submit();
+              
+               //window.location.href = "{{ url_for('main.production_orders') }}";
+               
+          }) 
+
+   
+ 
+
+      });
+
+    </script> 
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+ 
+  </body>
+</html>

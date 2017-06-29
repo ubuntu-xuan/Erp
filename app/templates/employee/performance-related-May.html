@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}仓库管理{% endblock%}
+
+
+{% block styles %}
+    {{ super() }}
+    <style>
+     #fittings_ModalLabel{text-align:center}
+     #table_container{border-top:0}
+    </style>
+
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4 align="center" >员工绩效记录</h4>
+
+                </div>
+                
+            </div>
+
+            <div id="toolbar" >
+                <button id='remove' class="btn btn-danger" disabled>
+                    <i class="glyphicon glyphicon-remove"></i> 删除
+                </button>
+
+                <button id="add" class="btn btn-success" >
+                    <i class="glyphicon glyphicon-plus"></i> 增加
+                </button>
+            </div>
+
+            <div class="row" >
+                <div class="col-md-12" >
+
+                    <ul id="myTab" class="nav nav-tabs">
+	               <li><a href="#Jan" data-toggle="tab">一月</a></li>
+	               <li><a href="#Feb" data-toggle="tab">二月</a></li>
+	               <li><a href="#Mar" data-toggle="tab">三月</a></li>
+	               <li><a href="#Apr" data-toggle="tab">四月</a></li>
+	               <li class="active"><a href="#May" data-toggle="tab">五月</a></li>
+	               <li><a href="#Jun" data-toggle="tab">六月</a></li>
+	               <li><a href="#Jul" data-toggle="tab">七月</a></li>
+	               <li><a href="#Aug" data-toggle="tab">八月</a></li>
+	               <li><a href="#Sep" data-toggle="tab">九月</a></li>
+	               <li><a href="#Oct" data-toggle="tab">十月</a></li>
+	               <li><a href="#Nov" data-toggle="tab">十一月</a></li>
+	               <li><a href="#Dec" data-toggle="tab">十二月</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+
+             <div class="tab-pane fade" id="May">
+      
+             </div>
+
+             <div class="fixed-table-container" id="table_container">
+                 <div class="fixed-table-header" >
+                     <table class="table table-hover" id="table">
+
+                     </table>
+                 </div>
+             </div>
+          </div>
+
+          </div>
+          </div>
+        </div>
+        </div>
+        <!-- /page content -->
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+       function initTable() {              
+        //先销毁表格
+{#        $('#table').bootstrapTable('destroy');#}
+        //初始化表格,动态从服务器加载数据
+        $("#table").bootstrapTable({
+{#            method: "get",  //使用get请求到服务器获取数据#}
+            url: '/employee/performance_related_May/return_json',
+            striped: true,  //表格显示条纹
+            pagination: true, //启动分页
+            pageSize: 50,  //每页显示的记录数
+            pageNumber:1, //当前第几页
+            pageList: [5, 10, 15, 20, 25,100,150,200],  //记录数可选列表
+            search: true,  //是否启用查询
+            showColumns: true,  //显示下拉框勾选要显示的列
+            showRefresh: true,  //显示刷新按钮
+            singleSelect: true,
+            checkboxHeader:true,
+            detailFormatter:true,
+            checkboxHeader:true,
+            uniqueId:"id",
+            toolbar: '#toolbar',
+            toolbarAlign:"left",
+            sidePagination: "client",
+            paginationVAlign:'top',
+            paginationHAlign:'right',
+            showExport:true,
+            exportDataType: 'all',
+//            basic', 'all', 'selected' 
+            sortOrder: 'desc',
+            locale: "zh-CN",
+            showFooter:false,
+            columns: [{
+                field: 'state',
+                checkbox: true,
+
+            },{
+                field: 'id',
+                title: 'ID',
+                align: 'center',
+                sortable: true,
+
+            },{
+                field: 'date',
+                title: '日期',
+                align: 'center',   
+                sortable: true,    
+                editable: {
+                    type: 'text',
+                    emptytext: "日期",  
+                    title: '日期',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },
+            },{
+                field: 'name',
+                title: '姓名',
+                align: 'center',            
+            },{
+                field: 'place',
+                title: '工作地点',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "工作地点", 
+                    title: '工作地点',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },                     
+            },{
+                field: 'content',
+                title: '工作内容',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "工作内容", 
+                    title: '工作内容',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },            
+            },{
+                field: 'complete',
+                title: '工作完成情况',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "工作完成情况", 
+                    title: '工作完成情况',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },                
+            },{
+                field: 'integration',
+                title: '积分',
+                align: 'center',                 
+            },{
+                field: 'remarks',
+                title: '备注',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "备注", 
+                    title: '备注',
+                },                 
+            }],
+
+            queryParamsType : "undefined",
+
+            onEditableSave: function (field, row, oldValue, $el) {
+                $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_May",
+                    data: {
+                        'row':row,
+                        'oldValue':oldValue,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            alert('提交数据成功');
+                        }
+                    },
+                    complete: function () {
+
+                    }
+                });
+            }
+        });
+      }
+
+    $(document).ready(function () {
+
+      $('#myTab a').click(function (e) {
+         var href = $(this).attr('href');
+         if(href=='#Jan'){
+             window.location.href = "{{ url_for('main.performance_related_Jan') }}";
+         }else if(href=='#Feb'){
+             window.location.href = "{{ url_for('main.performance_related_Feb') }}";
+         }else if(href=='#Mar'){
+             window.location.href = "{{ url_for('main.performance_related_Mar') }}";
+         }else if(href=='#Apr'){
+             window.location.href = "{{ url_for('main.performance_related_Apr') }}";
+         }else if(href=='#May'){
+             window.location.href = "{{ url_for('main.performance_related_May') }}";
+         }else if(href=='#Jun'){
+             window.location.href = "{{ url_for('main.performance_related_Jun') }}";
+         }else if(href=='#Jul'){
+             window.location.href = "{{ url_for('main.performance_related_Jul') }}";
+         }else if(href=='#Aug'){
+             window.location.href = "{{ url_for('main.performance_related_Aug') }}";
+         }else if(href=='#Sep'){
+             window.location.href = "{{ url_for('main.performance_related_Sep') }}";
+         }else if(href=='#Oct'){
+             window.location.href = "{{ url_for('main.performance_related_Oct') }}";
+         }else if(href=='#Nov'){
+             window.location.href = "{{ url_for('main.performance_related_Nov') }}";
+         }else if(href=='#Dec'){
+             window.location.href = "{{ url_for('main.performance_related_Dec') }}";
+         }else{
+               $(this).tab('show');   
+         }
+         e.preventDefault();  
+
+       }) 
+
+          //调用函数，初始化表格
+          initTable();
+
+          function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+          }
+
+          function getNameSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.name
+            });
+          }
+
+          var $table = $('#table'),$remove = $('#remove'),$add = $('#add');
+
+          selections = [];
+
+          $table.on('page-change.bs.table', function () {
+            $('#table').bootstrapTable('scrollTo', '10px');
+          });
+
+
+          $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+            $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+
+            // save your data, here just save the current page
+                selections = getIdSelections();
+            // push or splice the selections if you want to save all data selections
+
+            });
+
+          $table.on('all.bs.table', function (e, name, args) {
+            console.log(name, args);
+          });
+
+          $remove.click(function () {
+            var ids = getIdSelections();
+
+            $.ajax({
+                    type:'POST',
+                    url:'/employee/performance_related_May',
+                    async: false,
+                    data:{
+                        'ids':ids,
+
+                    },
+                    dataType:'json',
+                    success:function(data){},
+                    error:function(xhr,type){}
+             });
+
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            });
+
+            $remove.prop('disabled', true);
+          });
+
+
+          $add.click(function(){
+{#              var ids = getIdSelections();#}
+              $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_May",
+                    async: false,
+                    data:{
+{#                        'ids':ids,#}
+                        'add':'add_true'
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            alert('提交数据成功');
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+                    }
+                });
+
+              $table.bootstrapTable('refresh', {url: '/employee/performance_related_May/return_json'});
+              $table.bootstrapTable('selectPage','last')
+          });
+
+
+      });
+
+    </script>
+
+{% endblock %}
+
+  </body>
+</html>

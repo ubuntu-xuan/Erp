@@ -1,0 +1,44 @@
+[
+    {
+        "configure": "", 
+        "id": 1, 
+        "name": "A9外壳黑（上壳）", 
+        "nums": 570, 
+        "remarks": ""
+    }, 
+    {
+        "configure": "", 
+        "id": 2, 
+        "name": "A9外壳黑（下壳）", 
+        "nums": 30723, 
+        "remarks": ""
+    }, 
+    {
+        "configure": "", 
+        "id": 3, 
+        "name": "开关按钮（大黑）", 
+        "nums": 3724112, 
+        "remarks": ""
+    }, 
+    {
+        "configure": "", 
+        "id": 4, 
+        "name": "开关按钮（小黑）", 
+        "nums": 79621523, 
+        "remarks": ""
+    }, 
+    {
+        "configure": "", 
+        "id": 5, 
+        "name": "黑色外壳档板", 
+        "nums": 228215, 
+        "remarks": ""
+    }, 
+    {
+        "configure": "", 
+        "id": 6, 
+        "name": "A9外壳白（上壳）", 
+        "nums": 100052, 
+        "remarks": ""
+    }
+]

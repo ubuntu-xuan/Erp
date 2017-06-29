@@ -1,0 +1,21 @@
+#table_title{text-align:center;} 
+#modal_tbody{font-size: 10pt;}
+#tablefooter{padding-left:180px;font-size:12pt;}
+#reception{padding-left:300px;font-size:13pt;}
+#order{padding-left:200px;font-size:13pt;}
+#printtable{width:920px;height:240px;} 
+ 
+#date{padding-left:221px;font-size:13pt;}
+
+#divToPrint>p{line-height:6px;font-size: 9pt;}
+#divToPrint{padding-top:-5px;}
+#message{font-size:11pt;}
+
+.delivery_message{font-size:14pt;}
+#table_head{text-align:center;font-size:13pt;}
+#unit{font-size:13pt;}
+
+#company_name{padding-top:1px;font-size:26pt;}
+
+
+#purchase_order{padding-left:277px;font-size:13pt;}

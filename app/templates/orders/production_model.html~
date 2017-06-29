@@ -1,0 +1,1317 @@
+{% extends "base.html" %}
+
+{% block title %}编写生产单{% endblock%}
+
+
+{% block styles %}
+    {{ super() }}
+
+    <style type="text/css">  
+	#table_title{ text-align:center;}
+	#company_name{ width:80%;}
+	#saler_name{ width:81%;}
+	#client_name{ width:83%;}
+	#table_head{height:50px;}
+	#remarks{ width:45%;}        
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col-md-11">
+                    
+                </div>
+            </div>
+        <form class="form" id='form' role="form" method="post" onsubmit="return onsubmitFun();" >
+            <div id="toolbar">
+                 <button type='button' id="save" class="btn btn-success" >
+                     <i class="glyphicon glyphicon-plus"></i> 保存
+
+              <!--   <button type='button' id="return" class="btn btn-warning" >
+                     <i class="glyphicon glyphicon-backward"></i> 返回   -->
+
+                 <button type='button' id="print" class="btn btn-primary" >
+                     <i class="glyphicon glyphicon-print"></i> 打印
+
+                <!-- </button>
+                 <button type='button' id="return" class="btn btn-primary" >
+                     <i class="glyphicon glyphicon-backward"></i> 返回
+                 </button>-->
+            </div>
+
+            <br>
+        
+            <div class="row" >
+                    <div class="col-md-12" >
+                        <div class="fixed-table-container" >
+                            <div class="fixed-table-header" >
+                                <table class="table table-hover  " id="table" >
+                                    
+                                    <thead>
+
+                                    </thead>
+                                    <tbody>
+				    <tr>
+				        <div id='table_head'><h4 align="center" >生产通知单</h4></div><br>
+                                        {% if model == 'C100'%}
+                                        <div><h5>成本¥:{{ price_C100 }} x {{ nums }} + {{ install_price }}  = {{ (price_C100 * nums) + install_price  }} </h5></div>
+
+                                        {% elif model == 'E300'%}
+                                        <div><h5>成本¥:{{ price_E300 }} x {{ nums }} + {{ install_price }}  = {{ (price_E300 * nums) + install_price  }} </h5></div>
+                                        {% elif model == 'T300'%}
+                                        <div><h5>成本¥:{{ price_T300 }} x {{ nums }} + {{ install_price }}  = {{ (price_T300 * nums) + install_price  }} </h5></div>
+                                        {% elif model == 'T600'%}
+                                        <div><h5>成本¥:{{ price_T600 }} x {{ nums }} + {{ install_price }}  = {{ (price_T600 * nums) + install_price  }} </h5></div>
+
+                                        {% elif model == 'AX700' %}
+                                        <div><h5>成本¥: ( {{ price_AX700 }} + {{ memory_price }} + {{ harddisk_price }} + {{ wireless_price }}  )x {{ nums }} + {{ discs_price }} + {{ install_price }}  = {{ (product_price + memory_price + harddisk_price + wireless_price ) * nums + discs_price + install_price }}</h5></div>
+                                        {% elif model == 'AX730' %}
+                                        <div><h5>成本¥: ( {{ price_AX730 }} + {{ memory_price }} + {{ harddisk_price }} + {{ wireless_price }}  )x {{ nums }} + {{ discs_price }} + {{ install_price }}  = {{ (product_price + memory_price + harddisk_price + wireless_price ) * nums + discs_price + install_price }}</h5></div>
+                                        {% elif model == 'AX800' %}
+                                        <div><h5>成本¥: ( {{ price_AX800 }} + {{ memory_price }} + {{ harddisk_price }} + {{ wireless_price }}  )x {{ nums }} + {{ discs_price }} + {{ install_price }}  = {{ (product_price + memory_price + harddisk_price + wireless_price ) * nums + discs_price + install_price }}</h5></div>
+ 
+
+                                        {% else %}
+                                        <div><h5>成本¥:</h5></div>
+                                        {% endif %} 
+				    </tr>	
+                                    <tr>
+                                        <td> 
+                                            <div class="row">
+						<div class="col-md-6">
+						    <h5>客户名称:{{ company_name }}	
+						</div>
+						<div class="col-md-6">
+						    <h5>订单号:{{ order_number }} </h5> 
+						</div>
+				            </div>	               
+					</td>
+                                    </tr>
+                                    <tr>
+                                        <td>    
+                                            <h5>联系地址:{{ adress }} </h5>   
+					</td>
+                                    </tr>
+                                    <tr>
+                                        <td>   
+                                            <div class="row">
+						<div class="col-md-6">
+						    <h5>联系人:{{ client_name }}	
+						</div>
+						<div class="col-md-6">
+						    <h5>联系电话:{{ client_tel }} </h5> 
+						</div>
+				            </div>	               
+					</td>
+                                    </tr>
+                                    <tr>
+                                        <td>    
+                                            <div class="row">
+						<div class="col-md-6">
+						    <h5>销售代表:{{ saler_name }}	
+						</div>
+						<div class="col-md-6">
+						    <h5>联系电话:{{ saler_tel }} </h5> 
+						</div>
+				            </div>	               
+
+					</td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       发货方式:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="delivery_way" value="顺丰空运" {% if delivery_way=="顺丰空运" %}checked{% endif %} /> 顺丰空运&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="delivery_way" value="顺丰陆运"  {% if delivery_way=="顺丰陆运" %}checked{% endif %}/> 顺丰陆运&nbsp&nbsp&nbsp
+                                                <input type="radio" name="delivery_way" value="德邦陆运" {% if delivery_way=="德邦陆运" %}checked{% endif %}/> 德邦陆运&nbsp&nbsp&nbsp
+                                                <input type="radio" name="delivery_way" value="物流运输" {% if delivery_way=="物流运输" %}checked{% endif %}/> 物流运输
+                                                <input type="radio" name="delivery_way" value="送货上门" {% if delivery_way=="送货上门" %}checked{% endif %}/> 送货上门
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       产品型号:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="model" class='model' value="C100" {% if model=="C100" %}checked{% endif %} /> C100&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="model" class='model' value="E300"  {% if model=="E300" %}checked{% endif %}/> E300&nbsp&nbsp&nbsp
+                                                <input type="radio" name="model" class='model' value="T300" {% if model=="T300" %}checked{% endif %} /> T300&nbsp&nbsp&nbsp
+
+             					<input type="radio" name="model" class='model' value="T600" {% if model=="T600" %}checked{% endif %} /> T600&nbsp&nbsp&nbsp
+
+                                                <input type="radio" name="model" class='model' value="AX700" {% if model=="AX700" %}checked{% endif %}/> AX700&nbsp&nbsp&nbsp 
+
+                                                <input type="radio" name="model" class='model' value="AX730" {% if model=="AX730" %}checked{% endif %}/> AX730&nbsp&nbsp&nbsp 
+
+                                                <input type="radio" name="model" class='model' value="AX800" {% if model=="AX800" %}checked{% endif %}/> AX800&nbsp&nbsp&nbsp 
+
+                                                 
+                                                ¥<input type="text" name="model_price" id='model_price' value="{{ model_price }}"  />
+
+
+
+
+
+                                           </div> 
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       处理器型号:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="cpu" value="ARM 四核1.6G" {% if cpu=="ARM 四核1.6G" %}checked{% endif %}/> ARM 四核1.6G&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="cpu" value="1037U 双核1.8G" {% if cpu=="1037U 双核1.8G" %}checked{% endif %} /> 1037U 双核1.8G&nbsp&nbsp&nbsp
+                                                <input type="radio" name="cpu" value="J1900 四核2.0G" {% if cpu=="J1900 四核2.0G" %}checked{% endif %}/> J1900 四核2.0G&nbsp&nbsp&nbsp
+                                                <input type="radio" name="cpu" value="I3 4005G" {% if cpu=="I3 4005G" %}checked{% endif %}/> I3 4005G&nbsp&nbsp&nbsp
+                                                <input type="radio" name="cpu" value="N2805" {% if cpu=="N2805" %}checked{% endif %}/> N2805&nbsp&nbsp&nbsp						
+                                                <input type="radio" name="cpu" id='for_cpu' value="其它" {% if cpu=="其它" %}checked{% endif %} />其它 <input type="text" id='cpu_other' name="cpu_other"  value="{{ cpu_other }}"   />
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       内存配置:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="memory" class='memory' value="1G" {% if memory=="1G" %}checked{% endif %}/> 1G&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="memory" class='memory' value="2G" {% if memory=="2G" %}checked{% endif %} /> 2G&nbsp&nbsp&nbsp
+                                                <input type="radio" name="memory" class='memory' value="4G" {% if memory=="4G" %}checked{% endif %}/> 4G&nbsp&nbsp&nbsp
+						<input type="radio" name="memory" class='memory' value="8G" {% if memory=="8G" %}checked{% endif %} /> 8G&nbsp&nbsp&nbsp
+                                                <input type="radio" name="memory" id='for_memory' value="其它" {% if memory=="其它" %}checked{% endif %}/>其它 <input type="text" id='memory_other' name="memory_other"  value="{{ memory_other }}"   />
+
+
+                                               ¥<input type="text" name="memory_price" id='memory_price' value="{{ memory_price }}"  />
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       硬盘容量:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="harddisk" value="4GB FLASH" {% if harddisk=="4GB FLASH" %}checked{% endif %} /> 4GB FLASH&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="harddisk" value="8GB FLASH" {% if harddisk=="8GB FLASH" %}checked{% endif %} /> 8GB FLASH&nbsp&nbsp&nbsp
+                                                <input type="radio" name="harddisk" value="8GB 固态硬盘" {% if harddisk=="8GB 固态硬盘" %}checked{% endif %} /> 8GB 固态硬盘&nbsp&nbsp&nbsp
+						<input type="radio" name="harddisk" value="16GB 固态硬盘" {% if harddisk=="16GB 固态硬盘" %}checked{% endif %} /> 16GB 固态硬盘&nbsp&nbsp&nbsp
+                                                <input type="radio" name="harddisk" id='for_harddisk' value="其它" {% if harddisk=="其它" %}checked{% endif %} /> 其它&nbsp&nbsp&nbsp
+
+                                                <select id='harddisk_other' name="harddisk_other">
+                                                    <option value="32GB固态硬盘"   {% if harddisk_other=="32GB固态硬盘" %} selected {% endif %} >32GB 固态硬盘</option>
+                                                    <option value="64GB固态硬盘" {% if harddisk_other=="64GB固态硬盘" %} selected {% endif %}>64GB 固态硬盘</option>
+                                                    <option value="128GB固态硬盘" {% if harddisk_other=="128GB固态硬盘" %} selected {% endif %}>128GB 固态硬盘</option>
+                                                     <option value="256GB固态硬盘" {% if harddisk_other=="256GB固态硬盘" %} selected {% endif %}>256GB 固态硬盘</option>
+                                                                                                      
+                                                </select>
+<!--                                                 <input type="text" id='harddisk_other' name="harddisk_other" value="{{ harddisk_other }}"  />
+ -->
+                                               ¥<input type="text" name="harddisk_price" id='harddisk_price' value="{{ harddisk_price }}"  /> 
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       USB配置:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="usb" value="4个usb接口" {% if usb=="4个usb接口" %}checked{% endif %} /> 4个usb接口&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="usb" value="5个usb接口" {% if usb=="5个usb接口" %}checked{% endif %} /> 5个usb接口&nbsp&nbsp&nbsp
+                                                <input type="radio" name="usb" value="6个usb接口" {% if usb=="6个usb接口" %}checked{% endif %} /> 6个usb接口&nbsp&nbsp&nbsp
+                                                <input type="radio" name="usb" id='for_usb' value="其它" {% if usb=="其它" %}checked{% endif %} /> 其它&nbsp&nbsp&nbsp
+                                                <input type="text" id='usb_other' name="usb_other"  value="{{ usb_other }}"  />
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       串口配置:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="com" value="1个串口" {% if com=="1个串口" %}checked{% endif %} /> 1个串口&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="com" value="2个串口"  {% if com=="2个串口" %}checked{% endif %}/> 2个串口&nbsp&nbsp&nbsp
+                                                <input type="radio" name="com" value="不含串口" {% if com=="不含串口" %}checked{% endif %} /> 不含串口&nbsp&nbsp&nbsp
+        					<input type="radio" name="com" id='for_com'  value="其它" {% if com=="其它" %}checked{% endif %} /> 其它&nbsp&nbsp&nbsp
+                                                <input type="text" id='com_other' name="com_other"  value="{{ com_other }}" />
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       网卡速率:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="network" value="1个10/100Mbps" {% if network=="1个10/100Mbps" %}checked{% endif %} /> 1个10/100Mbps&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="network" value="1个100/1000Mbps" {% if network=="1个100/1000Mbps" %}checked{% endif %}/> 1个100/1000Mbps&nbsp&nbsp&nbsp
+                                               <input type="radio" name="network" value="2个100/1000Mbps" {% if network=="2个100/1000Mbps" %}checked{% endif %} /> 2个100/1000Mbps&nbsp&nbsp&nbsp
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                    <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       无线网卡:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="wireless" value="ARM RTL8188网卡" {% if wireless=="ARM RTL8188网卡" %}checked{% endif %} /> ARM RTL8188网卡&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="wireless" value="X86 Intel网卡" {% if wireless=="X86 Intel网卡" %}checked{% endif %} /> X86 Intel网卡&nbsp&nbsp&nbsp
+                                               <input type="radio" name="wireless" value="不含无线网卡" {% if wireless=="不含无线网卡" %}checked{% endif %} /> 不含无线网卡&nbsp&nbsp&nbsp
+
+					      ¥<input type="text" name="wireless_price" id='wireless_price' value="{{ wireless_price }}"  /> 
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       设备测试:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="checkbox" name="test1" id='test1' value="基本测试" checked/> 基本测试&nbsp&nbsp&nbsp
+				   	        <input type="checkbox" name="test2" id='test2' value="压力测试" {% if test2=="压力测试" %}checked{% endif %} /> 压力测试&nbsp&nbsp&nbsp
+                                                <input type="checkbox" name="test3" value="深度压力测试" {% if test3=="深度压力测试" %}checked{% endif %} /> 深度压力测试&nbsp&nbsp&nbsp
+						<input type="checkbox" name="test4" value="无需测试" {% if test4=="无需测试" %}checked{% endif %} /> 无需测试&nbsp&nbsp&nbsp
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       操作系统:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="os" id='for_os' value="Linux 版本号:" {% if os=="Linux 版本号:" %}checked{% endif %} /> Linux 版本号:&nbsp&nbsp&nbsp
+                                                <input type="text" name="os_version" id='os_version' value="{{ os_version }}"/> 
+				   	        <input type="radio" name="os" value="Windos" {% if os=="Windos" %}checked{% endif %} /> Windos&nbsp&nbsp&nbsp
+                                                <input type="radio" name="os" value="Android" {% if os=="Android" %}checked{% endif %}/> Android&nbsp&nbsp&nbsp
+						<input type="radio" name="os" value="不含系统" {% if os=="不含系统" %}checked{% endif %} /> 不含系统&nbsp&nbsp&nbsp
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       外壳商标:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="trademark" value="标准商标" {% if trademark=="标准商标" %}checked{% endif %} /> 标准商标&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="trademark" value="定制商标" {% if trademark=="定制商标" %}checked{% endif %} /> 定制商标&nbsp&nbsp&nbsp
+                                                <input type="radio" name="trademark" value="不含商标" {% if trademark=="不含商标" %}checked{% endif %} /> 不含商标&nbsp&nbsp&nbsp
+					
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       开机画面:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="logo" value="标准画面" {% if logo=="标准画面" %}checked{% endif %} /> 标准画面&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="logo" value="定制画面" {% if logo=="定制画面" %}checked{% endif %} /> 定制画面&nbsp&nbsp&nbsp
+                                                <input type="radio" name="logo" value="中性画面" {% if logo=="中性画面" %}checked{% endif %} /> 中性画面&nbsp&nbsp&nbsp
+					
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       说明书:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="instructions" value="标准说明书" {% if instructions=="标准说明书" %}checked{% endif %} /> 标准说明书&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="instructions" value="定制说明书" {% if instructions=="定制说明书" %}checked{% endif %} /> 定制说明书&nbsp&nbsp&nbsp
+                                                <input type="radio" name="instructions" value="不含说明书" {% if instructions=="不含说明书" %}checked{% endif %} /> 不含说明书&nbsp&nbsp&nbsp
+					
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       合格证:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="certificate" value="标准合格证" {% if certificate=="标准合格证" %}checked{% endif %} /> 标准合格证&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="certificate" value="定制合格证" {% if certificate=="定制合格证" %}checked{% endif %} /> 定制合格证&nbsp&nbsp&nbsp
+                                                <input type="radio" name="certificate" value="不含合格证" {% if certificate=="不含合格证" %}checked{% endif %} /> 不含合格证&nbsp&nbsp&nbsp
+					
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       保修卡:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="warrantycard" value="标准保修卡" {% if warrantycard=="标准保修卡" %}checked{% endif %} /> 标准保修卡&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="warrantycard" value="定制保修卡" {% if warrantycard=="定制保修卡" %}checked{% endif %} /> 定制保修卡&nbsp&nbsp&nbsp
+                                                <input type="radio" name="warrantycard" value="不含保修卡" {% if warrantycard=="不含保修卡" %}checked{% endif %} /> 不含保修卡&nbsp&nbsp&nbsp	
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       相关光盘:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="discs" value="驱动光盘" {% if discs=="驱动光盘" %}checked{% endif %} /> 驱动光盘&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="discs" value="ThinVirt系统光盘" {% if discs=="ThinVirt系统光盘" %}checked{% endif %}/> ThinVirt系统光盘&nbsp&nbsp&nbsp
+                                                <input type="radio" name="discs" value="不含光盘" {% if discs=="不含光盘" %}checked{% endif %}/> 不含光盘&nbsp&nbsp&nbsp	
+
+					       ¥<input type="text" name="discs_price" id='discs_price' value="{{ discs_price }}"  /> 
+
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       包装纸盒:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="package" value="公司彩包" {% if package=="公司彩包" %}checked{% endif %} /> 公司彩包&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="package" value="定制包装" {% if package=="定制包装" %}checked{% endif %} /> 定制包装&nbsp&nbsp&nbsp
+                                                <input type="radio" name="package" value="白牌工包" {% if package=="白牌工包" %}checked{% endif %} /> 白牌工包&nbsp&nbsp&nbsp	
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       标签类型:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="label" value="不含标签" {% if label=="不含标签" %}checked{% endif %} /> 不含标签&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="label" value="公司标签" {% if label=="公司标签" %}checked{% endif %} /> 公司标签&nbsp&nbsp&nbsp
+                                                <input type="radio" name="label" id='for_label' value="定制标签" {% if label=="定制标签" %}checked{% endif %} /> 定制标签，标签内容&nbsp&nbsp
+                                                <input type="text" id='label_content' name="label_content" value="{{ label_content }}" /> 	
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       安装实施:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="install" value="上门安装" {% if install=="上门安装" %}checked{% endif %} /> 上门安装&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="install" value="远程协助安装" {% if install=="远程协助安装" %}checked{% endif %} /> 远程协助安装&nbsp&nbsp&nbsp
+                                                <input type="radio" name="install" value="无需安装" {% if install=="无需安装" %}checked{% endif %} /> 无需安装&nbsp&nbsp
+					       ¥<input type="text" name="install_price" id='install_price' value="{{ install_price }}"  /> 
+
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       是否借出:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="radio" name="lend" value="否" {% if lend=="否" %}checked{% endif %} /> 否&nbsp&nbsp&nbsp
+				   	        <input type="radio" name="lend" id='for_lend' value="是，归还日期:" {% if lend=="是，归还日期:" %}checked{% endif %} /> 是，归还日期 <input type="text" id='return_data' name="return_data" value="{{ return_data }}" />  序列号:<input type="text" id='series_number' value="{{ series_number }}" 	name="series_number"/>            
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       需求数量:
+                           	 	    </div>
+                            		    <div class="col-md-11">
+                              	   	        <input type="text" name="nums" value= "{{ nums }}" />pcs
+                                           </div>
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-1">
+					       发货日期:
+                           	 	    </div>
+                            		    <div class="col-md-5">
+                              	   	        <input type="test" name="delivery_data" value= "{{ delivery_data }}" />
+                                       </div>
+				       </td>
+                                    </tr>
+                                   <tr>
+                                        <td>    	    
+                        		<div class="row">
+			    		    <div class="col-md-12">
+					       检测人员: 	    
+					    <input type="test" name="tester" value= "{{ tester }}" />&nbsp&nbsp&nbsp	    		    
+					       检测日期:
+					    <input type="test" name="test_data" value= "{{ test_data }}" />
+				       
+                                       </div>
+                                       </td>
+                                   <tr>
+                                       <td>
+                        		<div class="row">
+			    		    <div class="col-md-12">
+
+					备注说明:<input type="test" name="remarks" id='remarks' value= "{{ remarks }}" />  
+                                       </div>
+                                       </td>
+                                  </tr>
+
+                                   <tr>
+                                       <td>
+
+					审核人员:<input type="test" name="auditor" value= "{{ auditor }}"  /> 
+                                       </td>
+                                  </tr>
+                                </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+            </form>
+            </div>
+        
+        </div>
+        </div>
+        <!-- /page content -->
+
+
+        <!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+   	    aria-labelledby="myModalLabel" aria-hidden="true">
+   	<div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" id="myModalLabel">
+               	    生产通知单
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+        <!-- page content -->
+        <div class="center_col" role="main">
+
+        <form class="form" id='form' role="form" method="post"  >
+        <div id='divToPrint'> 
+	<table class="table table-bordered" id='printtable' >
+            <caption id='table_title' ><h2>生产通知单</h2>No.{{ requisition_number }}</caption>
+            
+            <tbody id='modal_tbody'>
+                 
+                <tr>
+                    <td >客户名称:</td> 
+                    <td >{{ company_name }}</td> 
+                    <td >订单号:</td> 
+                    <td >{{ order_number }}</td>           
+
+
+         	    
+      		</tr>
+      		<tr>
+         	    <td >联系地址:</td>
+         	    <td colspan="3" >{{ adress }}</td>
+
+                </tr>
+                <tr>
+                    <td >联系人:</td>
+                    <td >{{ client_name }}</td>
+                    <td>联系电话:</td>
+                    <td>{{ client_tel }}</td>
+
+                </tr>
+                <tr>
+                    <td>销售代表:</td>
+                    <td>{{ saler_name }}</td>
+                    <td>联系电话:</td>
+                    <td>{{ saler_tel }}</td>
+                </tr>
+                <tr>
+		    <td>发货方式:</td>
+		    <td>{{ delivery_way }}</td>
+                    {% if model=='其它' %}
+                    <td>产品型号:</td>
+                    <td>{{ model_other }}</td>
+                    {% else %}
+                    <td >产品型号:</td> 
+                    <td>{{ model }}</td>
+	            {% endif %}	
+
+
+                </tr>
+               
+                <tr>
+                    {% if cpu=='其它' %}
+                    <td>处理器型号:</td>
+                    <td>{{ cpu_other }}</td>
+                    {% else %}
+                    <td >处理器型号:</td> 
+                    <td >{{ cpu}}</td> 
+	            {% endif %}	
+
+                    {% if memory=='其它' %}
+                    <td>内存配置:</td>
+                    <td>{{ memory_other }}</td>
+                    {% else %}
+                    <td >内存配置:</td> 
+                    <td >{{ memory}}</td> 
+	            {% endif %}	
+
+
+	
+                </tr>
+               
+                <tr>
+                    {% if harddisk=='其它' %}
+                    <td >硬盘容量:</td>
+                    <td >{{ harddisk_other }}</td>
+                    {% else %}
+                    <td >硬盘容量:</td> 
+                    <td >{{ harddisk }}</td>
+	            {% endif %}	
+
+                    {% if usb=='其它' %}
+                    <td >USB配置:</td>
+                    <td >{{ usb_other }}</td>
+                    {% else %}
+                    <td >USB配置:</td> 
+                    <td >{{ usb }}</td> 
+	            {% endif %}	
+	
+                </tr>
+            
+                <tr>
+                    {% if com=='其它' %}
+                    <td>串口配置:</td>
+                    <td>{{ com_other }}</td>
+                    {% else %}
+                    <td>串口配置:</td> 
+                    <td>{{ com }}</td> 
+	            {% endif %}	
+
+                    <td>网卡速率:</td>
+                    <td>{{ network }}</td>
+                </tr>
+                <tr>
+
+                    <td>无线网卡:</td>
+                    <td colspan="3">{{ wireless }}</td>
+
+
+                </tr>  
+   
+                <tr> 
+                   <td>设备测试:</td>
+                   <td colspan="3">{{ test1 }} {{ test2 }} {{ test3 }} {{ test4 }}</td>
+                </tr>  
+
+                <tr>
+                   <td>操作系统:</td>
+                   <td>{{ os }} {{ os_version }}</td>
+                   <td>外壳商标:</td>
+                   <td>{{ trademark }}</td>
+                </tr>
+                <tr>
+
+                </tr>
+                <tr>
+                   <td>开机画面:</td>
+                   <td>{{ logo }}</td>
+                   <td>说明书:</td>
+                   <td>{{ instructions }}</td>
+
+                </tr>
+     
+                <tr>
+                   <td>合格证:</td>
+                   <td>{{ certificate }}</td>
+                   <td>保修卡:</td>
+                   <td>{{ warrantycard }}</td>
+                </tr> 
+           
+                <tr>
+                   <td>相关光盘:</td>
+                   <td>{{ discs }}</td>
+                   <td>包装纸盒:</td>
+                   <td>{{ package }}</td>
+                </tr> 
+        
+                <tr>
+                   <td>标签类型:</td>
+                   <td>{{ label }} {{ label_content }}</td>
+                   <td>安装实施:</td>
+                   <td>{{ install }}</td>
+                </tr> 
+            
+                <tr>
+                   {% if lend=='否' %} 
+                      <td>是否借出:{{ lend }} </td> 
+                      <td colspan="3">{{ lend }} </td> 
+
+		   {% else %} 
+                      <td>是否借出:</td>
+                      <td colspan="3">{{ lend }} {{ return_data }}&nbsp&nbsp&nbsp序列号:{{ series_number }} </td> 
+
+                   {% endif %}
+                </tr> 
+                <tr>
+                   <td>需求数量:</td>
+                   <td colspan="3">{{ nums }}pcs</td>
+                </tr> 
+                <tr>
+                   <td>发货日期:</td>
+                   <td colspan="3">{{ delivery_data }}</td>
+                </tr> 
+                <tr>
+                   <td >检测人员:</td>
+                   <td >{{ tester }}</td>
+                   <td>检测日期:</td>
+                   <td>{{ test_data }}</td>
+                </tr> 
+                <tr>
+                   <td>备注说明:</td>
+                   <td>{{ remarks }}</td>
+                   <td>审核人员:</td>
+                   <td>{{ auditor }}</td>
+                </tr>  
+               
+            </tbody>
+        </table>   
+        <p>备注：</p>   
+        <p>1.公司商品使用标准配件（开机画面,说明书,保修卡,合格证,包装,标签,商标）; </p> 
+        <p>2.定制配件（开机画面,说明书,保修卡,合格证,包装,标签,商标）,需要提前三天或以上通知; </p>                
+        <p>3.有现货情况下标准测试当天发货，常规压力测试隔天发货,深度压力测试隔两天发货; </p>                
+        <p>4.订单号填写客户采购编号或合同号; </p>                
+        <p>5.送货上门或上门安装需要提前三天或以上通知; </p>            
+        <p>6.检测数量较多情况下审核人员最少抽查30%样品;检测人员要对所有设备进行100%检测; </p>    
+        </div>
+
+        </form>
+        </div>
+        
+        </div>
+        </div>
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" id='close' class="btn btn-"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='modal_print' class="btn btn-primary">
+                   <i class="glyphicon glyphicon-print"></i> 打印
+            	</button>
+            </div>
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+
+
+
+        <!-- footer content -->
+        <footer>
+
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+
+        function onsubmitFun(){
+            
+            window.location.href = "{{ url_for('main.production_orders') }}";
+        }
+
+		
+      $(document).ready(function () {
+       function PageSetup_Null()  
+	  {  
+	      try{  
+                   
+ 		   var RegWsh = new ActiveXObject("WScript.Shell") ;  
+ 		   hkey_key="header" ;  
+ 		   RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"") ;  
+ 	           hkey_key="footer" ;  
+ 		   RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"") ;  
+ 	        }  
+		catch(e){}  
+	  } 
+        
+          $('#modal_print').click(function(){
+              
+              $('#divToPrint').jqprint({
+                debug: true,            
+                importCSS: true,         
+                printContainer: true,    
+                operaSupport: false  
+
+             });  
+          })
+
+       
+
+          $('#save').click(function() {
+               $('#form').submit();
+              
+               //window.location.href = "{{ url_for('main.production_orders') }}";
+               
+          }) 
+
+
+          $('#print').click(function(){
+              $('#myModal').modal('toggle'); 
+          })   
+
+
+          $('#return').click(function(){
+              window.location.href = "{{ url_for('main.production_orders') }}";
+          })       
+  
+
+
+          if ($('#for_cpu').prop('checked')){
+             $('#cpu_other').prop('disabled',false)
+            
+          }else{
+             $('#cpu_other').prop('disabled','disabled')
+           }	
+
+          $("#for_cpu").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#cpu_other').prop("disabled",false);
+                   
+              }else{
+                  $('#cpu_other').prop("disabled","disabled");
+               }
+          })
+
+          if ($('#for_memory').prop('checked')){
+             $('#memory_other').prop('disabled',false) 
+          }else{
+             $('#memory_other').prop('disabled','disabled')
+           }	
+
+          $("#for_memory").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#memory_other').prop("disabled",false);
+              }else{
+                  $('#memory_other').prop("disabled","disabled");
+               }
+          })
+
+          if ($('#for_harddisk').prop('checked')){
+             $('#harddisk_other').prop('disabled',false) 
+          }else{
+             $('#harddisk_other').prop('disabled','disabled')
+           }	
+
+          $("#for_harddisk").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#harddisk_other').prop("disabled",false);
+              }else{
+                  $('#harddisk_other').prop("disabled","disabled");
+               }
+          })
+
+          if ($('#for_harddisk').prop('checked')){
+             $('#usb_other').prop('disabled',false) 
+          }else{
+             $('#usb_other').prop('disabled','disabled')
+           }	
+
+          $("#for_usb").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#usb_other').prop("disabled",false);
+              }else{
+                  $('#usb_other').prop("disabled","disabled");
+               }
+          })
+
+          if ($('#for_com').prop('checked')){
+             $('#com_other').prop('disabled',false) 
+          }else{
+             $('#com_other').prop('disabled','disabled')
+           }	
+
+          $("#for_com").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#com_other').prop("disabled",false);
+              }else{
+                  $('#com_other').prop("disabled","disabled");
+               }
+          })
+
+
+          if ($('#for_network').prop('checked')){
+             $('#network_other').prop('disabled',false) 
+          }else{
+             $('#network_other').prop('disabled','disabled')
+           }	
+
+          $("#for_network").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#network_other').prop("disabled",false);
+              }else{
+                  $('#network_other').prop("disabled","disabled");
+               }
+          })
+
+
+          if ($('#for_os').prop('checked')){
+             $('#os_version').prop('disabled',false) 
+          }else{
+             $('#os_version').prop('disabled','disabled')
+           }	
+
+          $("#for_os").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#os_version').prop("disabled",false);
+              }else{
+                  $('#os_version').prop("disabled","disabled");
+               }
+          })
+
+          if ($('#for_label').prop('checked')){
+             $('#label_content').prop('disabled',false) 
+          }else{
+             $('#label_content').prop('disabled','disabled')
+           }	
+
+          $("#for_label").on('change',function () {
+              if ($(this).prop('checked')==true){
+                  $('#label_content').prop("disabled",false);
+              }else{
+                  $('#label_content').prop("disabled","disabled");
+               }
+          })
+
+
+          //价格不可改
+          $('#model_price').prop("readonly","readonly"); 
+          $('#memory_price').prop("readonly","readonly"); 
+          $('#harddisk_price').prop("readonly","readonly"); 
+          $('#wireless_price').prop("readonly","readonly"); 
+          $('#discs_price').prop("readonly","readonly"); 
+          //$('#install_price').prop("readonly","readonly"); 
+
+
+          //点击C100,注意这里的C100是大写C
+          $("input[type=radio][name=model][value='C100']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='ARM 四核1.6G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='1G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB FLASH']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='4个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个10/100Mbps']").prop('checked','checked');
+             
+             $("#model_price").val({{ price_C100 }});
+             $("#memory_price").val('');
+             $("#harddisk_price").val(''); 
+             
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled","disabled");
+             //$("#memory_price").prop("disabled","disabled"); 
+             //$("#harddisk_price").prop("disabled","disabled");     
+
+          })
+
+          if ($("input[type=radio][name=model][value='C100']").prop('checked')){
+             $("#model_price").val({{ price_C100 }});
+             $("#memory_price").val('');
+             $("#harddisk_price").val('');
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled","disabled"); 
+          }
+
+          //点击E300
+          $("input[type=radio][name=model][value='E300']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='ARM 四核1.6G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='1G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB FLASH']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='4个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个10/100Mbps']").prop('checked','checked');
+             
+             $("#model_price").val({{ price_E300 }});
+             $("#memory_price").val('');
+             $("#harddisk_price").val(''); 
+             
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled","disabled");
+             //$("#memory_price").prop("disabled","disabled"); 
+             //$("#harddisk_price").prop("disabled","disabled");     
+
+          })
+
+          if ($("input[type=radio][name=model][value='E300']").prop('checked')){
+             $("#model_price").val({{ price_E300 }});
+             $("#memory_price").val('');
+             $("#harddisk_price").val('');
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled","disabled");
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled","disabled"); 
+          }
+
+          //点击T300
+          $("input[type=radio][name=model][value='T300']").click(function () {
+           
+             
+             $("#model_price").val({{ price_T300 }});
+
+            
+          })
+
+          if ($("input[type=radio][name=model][value='T300']").prop('checked')){
+             $("#model_price").val({{ price_T300 }});
+
+          }
+
+          //点击T600
+          $("input[type=radio][name=model][value='T600']").click(function () {
+                    
+             $("#model_price").val({{ price_T600 }});
+            
+          })
+
+          if ($("input[type=radio][name=model][value='T300']").prop('checked')){
+             $("#model_price").val({{ price_T600 }});
+
+          }
+
+
+          //点击AX700,
+          $("input[type=radio][name=model][value='AX700']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='J1900 四核2.0G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='2G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB 固态硬盘']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='6个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个100/1000Mbps']").prop('checked','checked');
+
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled",false);   
+             
+             $("#model_price").val({{ price_AX700 }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+
+          })
+
+          if ($("input[type=radio][name=model][value='AX700']").prop('checked')){
+             $("#model_price").val({{ price_AX700 }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+          }
+
+          //点击AX730,
+          $("input[type=radio][name=model][value='AX730']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='J1900 四核2.0G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='2G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB 固态硬盘']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='6个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个100/1000Mbps']").prop('checked','checked');
+
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled",false);   
+             
+             $("#model_price").val({{ price_AX730 }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+
+          })
+
+          if ($("input[type=radio][name=model][value='AX730']").prop('checked')){
+             $("#model_price").val({{ price_AX730 }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+          }
+
+          //点击AX800,
+          $("input[type=radio][name=model][value='AX800']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='I3 4005G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='2G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB 固态硬盘']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='6个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个100/1000Mbps']").prop('checked','checked');
+
+             $("#model_price").val({{ price_AX800 }});
+
+          })
+
+          if ($("input[type=radio][name=model][value='AX800']").prop('checked')){
+             $("#model_price").val({{ price_AX800 }});
+          }
+
+
+
+
+
+
+
+
+          //点击内存选项
+          $("input[type=radio][name=memory][value='1G']").click(function () {
+             $("#memory_price").val('0');
+             $("#memory_other").prop("disabled","disabled");
+
+          })
+
+          $("input[type=radio][name=memory][value='2G']").click(function () {
+             $("#memory_price").val({{ price_2GB }});
+             $("#memory_other").prop("disabled","disabled");
+
+          })
+
+          if ($("input[type=radio][name=memory][value='2G']").prop('checked')){
+             $("#memory_price").val({{ price_2GB }});
+             
+          }
+
+          $("input[type=radio][name=memory][value='4G']").click(function () {
+             $("#memory_price").val({{ price_4GB }});
+             $("#memory_other").prop("disabled","disabled");
+
+          })
+
+
+          if ($("input[type=radio][name=memory][value='4G']").prop('checked')){
+             $("#memory_price").val({{ price_4GB }});
+             
+          }
+
+          $("input[type=radio][name=memory][value='8G']").click(function () {
+             $("#memory_price").val({{ price_8GB }});
+             $("#memory_other").prop("disabled","disabled");
+
+          })
+
+
+          if ($("input[type=radio][name=memory][value='8G']").prop('checked')){
+             $("#memory_price").val({{ price_8GB }});
+             
+          }
+
+          //if ($("#memory_other").val() == "16G"){
+             //$("#memory_price").val({{ price_16GB }});
+          //} 
+          //点击网卡选项
+          $("input[type=radio][name=wireless][value='ARM RTL8188网卡']").click(function () {
+             $("#wireless_price").val('0');
+             
+          })
+
+
+
+          //点击硬盘选项
+          $("input[type=radio][name=harddisk][value='4GB FLASH']").click(function () {
+             $("#harddisk_price").val('0');
+             $("#harddisk_other").prop("disabled","disabled");
+
+          })
+
+
+          $("input[type=radio][name=harddisk][value='8GB FLASH']").click(function () {
+             $("#harddisk_price").val('0');
+             $("#harddisk_other").prop("disabled","disabled");
+
+          })
+
+          $("input[type=radio][name=harddisk][value='8GB 固态硬盘']").click(function () {
+             $("#harddisk_price").val({{ price_8GBHD }});
+             $("#harddisk_other").prop("disabled","disabled");
+
+          })
+
+          if ($("input[type=radio][name=harddisk][value='8GB 固态硬盘']").prop('checked')){
+             $("#harddisk_price").val({{ price_8GBHD }});
+             
+          }
+
+          $("input[type=radio][name=harddisk][value='16GB 固态硬盘']").click(function () {
+             $("#harddisk_price").val({{ price_16GBHD }});
+             $("#harddisk_other").prop("disabled","disabled");
+          })
+
+          if ($("input[type=radio][name=harddisk][value='16GB 固态硬盘']").prop('checked')){
+             $("#harddisk_price").val({{ price_16GBHD }});
+             
+          }
+          
+          if ($("#harddisk_other").val() == "32GB固态硬盘"){
+             $("#harddisk_price").val({{ price_32GBHD }});
+            }
+          
+          if ($("#harddisk_other").val() == "64GB固态硬盘"){
+             $("#harddisk_price").val({{ price_64GBHD }});
+            }
+
+          if ($("#harddisk_other").val() == "128GB固态硬盘"){
+             $("#harddisk_price").val({{ price_128GBHD }});
+            }
+
+          //无线网卡
+          $("input[type=radio][name=wireless][value='ARM RTL8188网卡']").click(function () {
+             $("#wireless_price").val({{ price_ARMRTL8188 }});          
+            
+          })
+
+          if ($("input[type=radio][name=wireless][value='ARM RTL8188网卡']").prop('checked')){
+             $("#wireless_price").val({{ price_ARMRTL8188 }});          
+          }
+
+          $("input[type=radio][name=wireless][value='X86 Intel网卡']").click(function () {
+             $("#wireless_price").val({{ price_X86Intel }});          
+            
+          })
+
+          if ($("input[type=radio][name=wireless][value='X86 Intel网卡']").prop('checked')){
+             $("#wireless_price").val({{ price_X86Intel }});          
+          }
+
+          $("input[type=radio][name=wireless][value='不含无线网卡']").click(function () {
+             $("#wireless_price").val('0.0');          
+            
+          })
+
+          if ($("input[type=radio][name=wireless][value='不含无线网卡']").prop('checked')){
+             $("#wireless_price").val('0.0');          
+          }
+ 
+          //光盘
+          $("input[type=radio][name=discs][value='驱动光盘']").click(function () {
+             $("#discs_price").val({{ price_drivercd }});          
+            
+          })
+
+          if ($("input[type=radio][name=discs][value='驱动光盘']").prop('checked')){
+             $("#discs_price").val({{ price_drivercd }});          
+          }        
+ 
+          $("input[type=radio][name=discs][value='ThinVirt系统光盘']").click(function () {
+             $("#discs_price").val({{ price_ThinVirt }});          
+            
+          })
+
+          if ($("input[type=radio][name=discs][value='ThinVirt系统光盘']").prop('checked')){
+             $("#discs_price").val({{ price_ThinVirt }});          
+          } 
+
+          $("input[type=radio][name=discs][value='不含光盘']").click(function () {
+             $("#discs_price").val('0.0');          
+            
+          })
+
+          if ($("input[type=radio][name=discs][value='不含光盘']").prop('checked')){
+             $("#discs_price").val('0.0');          
+          } 
+
+          //安装
+          $("input[type=radio][name=install][value='无需安装']").click(function () {
+             $("#install_price").val('0.0');          
+            
+          })
+
+          if ($("input[type=radio][name=install][value='无需安装']").prop('checked')){
+             $("#install_price").val('0.0');          
+          }       
+
+          if ($('.model').prop('checked')){
+
+          }
+
+
+
+
+
+
+
+      })
+
+    </script>
+
+{% endblock %}
+ 
+  </body>
+</html>

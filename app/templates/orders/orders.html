@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block title %}订单管理{% endblock%}
+
+
+{% block styles %}
+    {{ super() }}
+    <style>
+       #table_container{border-top:0}
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4 align="center" >客户订单</h4>
+                </div>
+            </div>
+
+            <div id="toolbar">
+                <button id="remove" class="btn btn-danger" disabled>
+                    <i class="glyphicon glyphicon-remove"></i> 删除
+                </button>
+
+                <button id="add" class="btn btn-success" >
+                    <i class="glyphicon glyphicon-plus"></i> 增加
+                </button>
+
+
+            </div>
+
+            <div class="row" >
+                    <div class="col-md-12" >
+
+                    <ul id="myTab" class="nav nav-tabs">
+	               <li class='active'><a href="#Apartment_terminal" data-toggle="tab">云终端</a></li>
+	               <li><a href="#Apartment_integrate" data-toggle="tab">系统集成部</a></li>
+	               <li><a href="#Apartment_electric" data-toggle="tab">电力部</a></li>
+	               <li><a href="#Apartment_commerce" data-toggle="tab">商务部</a></li>
+	               <li><a href="#Apartment_others" data-toggle="tab">其它</a></li>
+
+                    </ul>
+
+
+                        <div class="fixed-table-container" id="table_container" >
+                            <div class="fixed-table-header" >
+                                <table class="table table-hover  " id="table" >
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+        <script>
+
+
+        function initTable() {
+
+        window.operateEvents = {
+            'click .upload': function (e, value, row, index) {
+
+            },
+
+            'click .check': function (e, value, row, index) {
+                
+   
+               var data = {
+                   data:JSON.stringify({"number":row.order_number}) 
+               }               
+ 
+               $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                           window.open("/data/" + data["filename"]);			
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+       
+            },
+
+            'click .create_productions': function (e, value, row, index) {
+               $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    async: false,
+                    data:{
+                        'create_production_orders':row.order_number,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                window.location.href = "{{ url_for('main.production_orders') }}";    
+             },
+            'click .create_delivery': function (e, value, row, index) {
+               $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    async: false,
+                    data:{
+                        'create_delivery_orders':row.order_number,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                window.location.href = "{{ url_for('main.delivery_orders') }}";    
+              },
+
+           
+        };
+
+        //先销毁表格
+{#        $('#table').bootstrapTable('destroy');#}
+        //初始化表格,动态从服务器加载数据
+        $("#table").bootstrapTable({
+{#            method: "get",  //使用get请求到服务器获取数据#}
+            url: '/orders/return_json',
+            striped: true,  //表格显示条纹
+            pagination: true, //启动分页
+            pageSize: 50,  //每页显示的记录数
+            pageNumber:1, //当前第几页
+            pageList: [5, 10, 15, 20, 25,50,100,150,200],  //记录数可选列表
+            search: true,  //是否启用查询
+            showColumns: true,  //显示下拉框勾选要显示的列
+            showRefresh: true,  //显示刷新按钮
+            singleSelect: true,
+            checkboxHeader:true,
+            detailFormatter:true,
+            checkboxHeader:true,
+            uniqueId:"id",
+            toolbar: '#toolbar',
+            toolbarAlign:"left",
+            sidePagination: "client",
+            paginationVAlign:'top',
+            paginationHAlign:'right',
+            showExport:true,
+            exportDataType: 'all',
+{#            basic', 'all', 'selected'.#}
+            sortOrder: 'desc',
+            locale: "zh-CN",
+            columns: [{
+                field: 'state',
+                checkbox: true,
+
+            },{
+                field: 'id',
+                title: 'ID',
+                align: 'center',
+                sortable: true,
+
+            },{
+                field: 'company_name',
+                title: '客户名称',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '客户名称',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },
+            },{
+                field: 'order_number',
+                title: '合同编号',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '合同编号',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
+                field: 'tax_type',
+                title: '税种 ',
+                align: 'center',
+                
+                editable: {
+                    type: 'text',
+                    title: '税种',
+                    emptytext:'-', 
+                }
+            },{
+                field: 'adress',
+                title: '收货地址',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '收货地址',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+
+            },{
+                field: 'client_name',
+                title: '联系人',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '联系人',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+
+            },{
+                field: 'tel',
+                title: '联系方式',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '联系方式',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
+                field: 'saler',
+                title: '销售人',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '销售人',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
+                field: 'saler_tel',
+                title: '联系方式',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '联系方式',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
+                field: 'apartment',
+                title: '部门',
+                align: 'center',
+            }, {
+                field: 'operate',
+                title: '操作',
+                align: 'left',
+                events: operateEvents,
+                formatter: operateFormatter
+            }],
+
+
+            queryParamsType : "undefined",
+
+            onEditableSave: function (field, row, oldValue, $el) {
+                $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    data: {
+                        'row':row,
+                        'oldValue':oldValue,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+                            //alert('提交数据成功');
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+
+                    }
+                });
+            }
+        });
+
+        function operateFormatter(value, row, index) {
+             //var name = getNameSelections();
+                return [
+
+            '<a class="check" href="javascript:;"  data-gallery  title="查看合同" >',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'查看',
+            '</a>',' ',
+            '<a class="create_productions" href="javascript:;" title="生成生产通知单">',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成生产单',
+            ' ',
+            '<a class="create_delivery" href="javascript:;" title="生成送货单">',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成送货单',
+
+            '</a>',' ',
+
+           ].join('');
+        }
+
+      }
+
+      $(document).ready(function () {
+
+      $('#myTab a').click(function (e) {
+         var href = $(this).attr('href');
+         if(href=='#Apartment_terminal'){
+             window.location.href = "{{ url_for('main.orders') }}";
+         }else if(href=='#Apartment_integrate'){
+             window.location.href = "{{ url_for('main.orders_integrate') }}";
+         }else if(href=='#Apartment_electric'){
+             window.location.href = "{{ url_for('main.orders_electric') }}";
+         }else if(href=='#Apartment_commerce'){
+             window.location.href = "{{ url_for('main.orders_commerce') }}";
+         }else if(href=='#Apartment_others'){
+             window.location.href = "{{ url_for('main.orders_others') }}";
+         }else{
+               $(this).tab('show');   
+         }
+         e.preventDefault();  
+
+       }) 
+          
+ 
+          //调用函数，初始化表格
+          initTable();
+
+          function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+          }
+
+          function getNameSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.name
+            });
+          }
+
+          function getOrderSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.order_number
+            });
+          }
+
+
+
+          var $table = $('#table'),$remove = $('#remove'),$add = $('#add'),$create = $('#create');
+        
+          selections = [];
+          
+          
+
+          $table.on('page-change.bs.table', function () {
+            $('#table').bootstrapTable('scrollTo', '10px');
+          });
+    
+           
+          $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+            $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+            
+            // save your data, here just save the current page
+                selections = getIdSelections();
+            // push or splice the selections if you want to save all data selections
+
+            });
+          
+
+           
+
+
+          $table.on('all.bs.table', function (e, name, args) {
+            console.log(name, args);
+          });
+
+
+          $remove.click(function () {
+            var ids = getIdSelections();
+            var remove_name = getNameSelections();
+            var remove_order = getOrderSelections();
+
+            $.ajax({
+                    type:'POST',
+                    url:'/orders',
+                    async: false,
+                    data:{
+                        'ids':ids,
+                        'remove_name':remove_name,
+                        'remove_order':remove_order
+                    },
+                    dataType:'json',
+                    success:function(data){},
+                    error:function(xhr,type){}
+             });
+
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            });
+
+            $remove.prop('disabled', true);
+          });
+
+          $add.click(function(){
+{#              var ids = getIdSelections();#}
+              $table.bootstrapTable('selectPage','last')
+              $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    async: false,
+                    data:{
+{#                        'ids':ids,#}
+                        'add':'add_true'
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+
+                        }
+                    },
+{#                    error: function () {#}
+{#                        alert('编辑失败');#}
+{#                    },#}
+                    complete: function () {
+                    }
+                });
+
+
+
+
+              $table.bootstrapTable('refresh', {url: '/orders/return_json'});
+
+          });
+
+          //当点击查询按钮的时候执行
+{#          $("#search").bind("click", initTable);#}
+      });
+
+    </script> 
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+ 
+  </body>
+</html>
