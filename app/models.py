@@ -242,6 +242,7 @@ class Orders(db.Model):
     __tablename__='orders'
     id = db.Column(db.Integer,primary_key=True)
     company_name = db.Column(db.String(64),index=True)
+    order_date = db.Column(db.String(64),index=True)
     order_number = db.Column(db.String(64),index=True)
     tax_type = db.Column(db.String(64),index=True)
     adress = db.Column(db.String(64),index=True)
@@ -250,6 +251,12 @@ class Orders(db.Model):
     saler = db.Column(db.String(64),index=True)
     saler_tel = db.Column(db.String(64),index=True)
     apartment = db.Column(db.String(64),index=True)
+    product_type = db.Column(db.String(64),index=True)
+    product_price = db.Column(db.Float,index=True)
+    product_num = db.Column(db.Integer,index=True)
+    order_amount = db.Column(db.Float,index=True)
+
+
 
     def __repr__(self):
         return '<orders %r>' % self.company_name
@@ -337,6 +344,7 @@ class Price_Storage(db.Model):
     price_T600 = db.Column(db.String(64),index=True)
     price_AX730 = db.Column(db.String(64),index=True)          
     price_AX800 = db.Column(db.String(64),index=True)
+    price_N600NW = db.Column(db.String(64),index=True)
     #price_model_others = db.Column(db.String(64),index=True)
     
     price_1GB = db.Column(db.String(64),index=True)
@@ -426,10 +434,43 @@ class Payment(db.Model):
     cost = db.Column(db.String(64),index=True)
     profit = db.Column(db.String(64),index=True)
     status = db.Column(db.String(64),index=True)  
+    date = db.Column(db.String(64),index=True)
+    type = db.Column(db.String(64),index=True)
+    price = db.Column(db.Float,index=True)
+    num = db.Column(db.Integer,index=True)
+    tem_cost = db.Column(db.Float,index=True)
+    server_cost = db.Column(db.Float,index=True)
+    consult_cost = db.Column(db.Float,index=True)
+    after_sales = db.Column(db.Float,index=True)
+    tax_type = db.Column(db.String(64),index=True)
 
 
     def __repr__(self):
         return '<Payment %r>' % self.no
+
+
+
+#合同结算模型
+class ContractAccountant(db.Model):
+    __tablename__='contract_accountant'
+    order_date = db.Column(db.String(64),index=True)
+    purchase_order = db.Column(db.String(64),index=True,primary_key=True)
+    client_name = db.Column(db.String(64),index=True)
+    product_type = db.Column(db.String(64),index=True)
+    product_price = db.Column(db.Float,index=True)
+    product_num = db.Column(db.Integer,index=True)
+    tax_type = db.Column(db.String(64),index=True)
+    order_amount = db.Column(db.Float,index=True)
+    tem_cost = db.Column(db.Float,index=True)
+    server_cost = db.Column(db.Float,index=True)
+    tax = db.Column(db.Float,index=True)
+    consult_cost = db.Column(db.Float,index=True)
+    after_sales = db.Column(db.Float,index=True)
+    profit = db.Column(db.Float,index=True)
+
+    def __repr__(self):
+        return '<ContractAccountant %r>' % self.purchase_order
+
 
 
 #采购清单模型

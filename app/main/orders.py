@@ -195,8 +195,13 @@ def contract():
 def orders():
     # if request.method == 'POST':
     id = request.form.get('row[id]', '')
+    order_date = request.form.get('row[order_date]', '')
     company_name = request.form.get('row[company_name]', '')
     order_number = request.form.get('row[order_number]', '')
+    product_type = request.form.get('row[product_type]', '')
+    product_price = request.form.get('row[product_price]', '')
+    product_num = request.form.get('row[product_num]', '')
+    order_amount = request.form.get('row[order_amount]', '')
     tax_type = request.form.get('row[tax_type]', '')
     adress = request.form.get('row[adress]', '')
     client_name = request.form.get('row[client_name]', '')
@@ -205,7 +210,6 @@ def orders():
     saler_tel = request.form.get('row[saler_tel]', '')
     apartment = request.form.get('row[apartment]', '')
     oldValue = request.form.get('oldValue', '')
-
 
 
     # 获取要生成的通知单的单号
@@ -242,18 +246,19 @@ def orders():
             id_from_mysql.append(datas)
 
         id_concect = dict(zip(id_from_table, id_from_mysql))
-        print id_concect
+
 
     if id != '':
         old_Value = Orders.query.filter_by(id=id_concect[int(id)]).first()
         if old_Value is not None:
             print "更新数据"
             Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"company_name": company_name, "order_number": order_number, "tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 
             '''当orders修改时自动修改Production_Orders中的信息'''
+	    print('orders修改自动修改生产单信息')
             production = Production_Orders.query.filter_by(order_number=order_number).first()
             if production is not None:
                 Production_Orders.query.filter_by(order_number=order_number).update(
@@ -262,6 +267,7 @@ def orders():
                      "saler_tel": saler_tel})
 
             '''当orders修改时自动修改delivery中的信息'''
+	    print('orders修改自动修改送货单信息')
             delivery = Delivery_Orders.query.filter_by(purchase_order=order_number).first()
             if delivery is not None:
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
@@ -374,7 +380,7 @@ def orders():
             get_data = []
             for i, w in enumerate(delivery_data):
                 get_data.append(w[0])
-                print 'max!!!!!!!!', long(max(get_data))
+                #print 'max!!!!!!!!', long(max(get_data))
             no = long(max(get_data)) + 1
 
         # 获取系统时间 
@@ -391,9 +397,10 @@ def orders():
         db.session.add(add_delivery)
         db.session.commit()
 
+
         # 生成送货单产品数据表
         if cursor.execute("show tables like '%s' " % ('delivery_' + str(no))) != 1:
-
+	    print('送货单具体产品数据表不存在,新建')
             # 获取送货单中相应信息
             delivery_no = Delivery_Orders.query.filter_by(no=no).first().no
             purchase_order = Delivery_Orders.query.filter_by(no=no).first().purchase_order
@@ -402,8 +409,6 @@ def orders():
             client_adress = Orders.query.filter_by(order_number=delivery_order).first().adress
 
             get_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-
-            print '送货单产品表不存在，新建'
 
             try:
                 '''warning:这里需要设置为环境获取'''
@@ -456,7 +461,8 @@ def orders():
     add = request.form.get('add', '')
 
     if add == 'add_true':
-        add_item = Orders(company_name='edit', order_number='edit', tax_type='增值税', adress='edit', client_name='edit',
+	get_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+        add_item = Orders(order_date=get_date,company_name='edit', order_number='edit', product_type='edit',product_price=0.0,product_num=0,tax_type='增值税',order_amount=0.0, adress='edit', client_name='edit',
                           tel='-', saler='edit', saler_tel='-', apartment='云终端')
         db.session.add(add_item)
         db.session.commit()
@@ -549,10 +555,15 @@ def orders_return_json():
         result['saler'] = row[7]
         result['saler_tel'] = row[8]
         result['apartment'] = row[9]
-        result['length'] = len(data)
+	result['order_date'] = row[10]
+	result['product_type'] = row[11]
+	result['product_price'] = row[12]
+        result['product_num'] = row[13]
+	result['order_amount'] = row[14]	
+
+	result['length'] = len(data)
 
         jsonData.append(result)
-    print jsonData
     return json.dumps(jsonData)
 
 
@@ -562,8 +573,13 @@ def orders_return_json():
 def orders_integrate():
     # if request.method == 'POST':
     id = request.form.get('row[id]', '')
+    order_date = request.form.get('row[order_date]')
     company_name = request.form.get('row[company_name]', '')
     order_number = request.form.get('row[order_number]', '')
+    product_type = request.form.get('row[product_type]', '')
+    product_price = request.form.get('row[product_price]', '')
+    product_num = request.form.get('row[product_num]', '')
+    order_amount = request.form.get('row[order_amount]', '')
     tax_type = request.form.get('row[tax_type]', '')
     adress = request.form.get('row[adress]', '')
     client_name = request.form.get('row[client_name]', '')
@@ -572,6 +588,7 @@ def orders_integrate():
     saler_tel = request.form.get('row[saler_tel]', '')
     apartment = request.form.get('row[apartment]', '')
     oldValue = request.form.get('oldValue', '')
+
 
 
     # 获取要生成的通知单的单号
@@ -613,11 +630,11 @@ def orders_integrate():
         old_Value = Orders.query.filter_by(id=id_concect[int(id)]).first()
         if old_Value is not None:
             print "更新数据"
-            Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"company_name": company_name, "order_number": order_number, "tax_type": tax_type,
+ 	    Orders.query.filter_by(id=id_concect[int(id)]).update(
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
-
+	
             '''当orders修改时自动修改Production_Orders中的信息'''
             production = Production_Orders.query.filter_by(order_number=order_number).first()
             if production is not None:
@@ -825,9 +842,10 @@ def orders_integrate():
     add = request.form.get('add', '')
 
     if add == 'add_true':
-        add_item = Orders(company_name='edit', order_number='edit', tax_type='增值税', adress='edit', client_name='edit',
-                          tel='-', saler='edit', saler_tel='-', apartment='系统集成部')
-        db.session.add(add_item)
+	get_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+        add_item = Orders(order_date=get_date,company_name='edit', order_number='edit', product_type='edit',product_price=0.0,product_num=0,tax_type='增值税',order_amount=0.0, adress='edit', client_name='edit',tel='-', saler='edit', saler_tel='-', apartment='系统集成部')
+
+	db.session.add(add_item)
         db.session.commit()
 
         # 删除数据
@@ -916,11 +934,17 @@ def orders_integrate_return_json():
         result['saler'] = row[7]
         result['saler_tel'] = row[8]
         result['apartment'] = row[9]
-        result['length'] = len(data)
-
+        result['order_date'] = row[10]
+        result['product_type'] = row[11]
+        result['product_price'] = row[12]
+        result['product_num'] = row[13]
+        result['order_amount'] = row[14]
+	result['length'] = len(data)
         jsonData.append(result)
-    print jsonData
+
     return json.dumps(jsonData)
+
+
 
 
 # 电力部 订单
@@ -929,8 +953,13 @@ def orders_integrate_return_json():
 def orders_electric():
     # if request.method == 'POST':
     id = request.form.get('row[id]', '')
+    order_date = request.form.get('row[order_date]')
     company_name = request.form.get('row[company_name]', '')
     order_number = request.form.get('row[order_number]', '')
+    product_type = request.form.get('row[product_type]', '')
+    product_price = request.form.get('row[product_price]', '')
+    product_num = request.form.get('row[product_num]', '')
+    order_amount = request.form.get('row[order_amount]', '')
     tax_type = request.form.get('row[tax_type]', '')
     adress = request.form.get('row[adress]', '')
     client_name = request.form.get('row[client_name]', '')
@@ -979,10 +1008,10 @@ def orders_electric():
         old_Value = Orders.query.filter_by(id=id_concect[int(id)]).first()
         if old_Value is not None:
             print "更新数据"
-            Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"company_name": company_name, "order_number": order_number, "tax_type": tax_type,
+	    Orders.query.filter_by(id=id_concect[int(id)]).update(
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
-                 "apartment": apartment})
+                 "apartment": apartment})	
 
             '''当orders修改时自动修改Production_Orders中的信息'''
             production = Production_Orders.query.filter_by(order_number=order_number).first()
@@ -1192,7 +1221,8 @@ def orders_electric():
     add = request.form.get('add', '')
 
     if add == 'add_true':
-        add_item = Orders(company_name='edit', order_number='edit', tax_type='增值税', adress='edit', client_name='edit',
+	get_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+	add_item = Orders(order_date=get_date,company_name='edit', order_number='edit', product_type='edit',product_price=0.0,product_num=0,tax_type='增值税',order_amount=0.0, adress='edit', client_name='edit',
                           tel='-', saler='edit', saler_tel='-', apartment='电力部')
         db.session.add(add_item)
         db.session.commit()
@@ -1285,6 +1315,11 @@ def orders_electric_return_json():
         result['saler'] = row[7]
         result['saler_tel'] = row[8]
         result['apartment'] = row[9]
+        result['order_date'] = row[10]
+        result['product_type'] = row[11]
+        result['product_price'] = row[12]
+        result['product_num'] = row[13]
+        result['order_amount'] = row[14]
         result['length'] = len(data)
 
         jsonData.append(result)
@@ -1298,8 +1333,13 @@ def orders_electric_return_json():
 def orders_commerce():
     # if request.method == 'POST':
     id = request.form.get('row[id]', '')
+    order_date = request.form.get('row[order_date]')
     company_name = request.form.get('row[company_name]', '')
     order_number = request.form.get('row[order_number]', '')
+    product_type = request.form.get('row[product_type]', '')
+    product_price = request.form.get('row[product_price]', '')
+    product_num = request.form.get('row[product_num]', '')
+    order_amount = request.form.get('row[order_amount]', '')
     tax_type = request.form.get('row[tax_type]', '')
     adress = request.form.get('row[adress]', '')
     client_name = request.form.get('row[client_name]', '')
@@ -1351,11 +1391,11 @@ def orders_commerce():
         old_Value = Orders.query.filter_by(id=id_concect[int(id)]).first()
         if old_Value is not None:
             print "更新数据"
-            Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"company_name": company_name, "order_number": order_number, "tax_type": tax_type,
+	    Orders.query.filter_by(id=id_concect[int(id)]).update(
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
-
+	
             '''当orders修改时自动修改Production_Orders中的信息'''
             production = Production_Orders.query.filter_by(order_number=order_number).first()
             if production is not None:
@@ -1564,7 +1604,8 @@ def orders_commerce():
     add = request.form.get('add', '')
 
     if add == 'add_true':
-        add_item = Orders(company_name='edit', order_number='edit', tax_type='增值税', adress='edit', client_name='edit',
+        get_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+	add_item = Orders(order_date=get_date,company_name='edit', order_number='edit', product_type='edit',product_price=0.0,product_num=0,tax_type='增值税',order_amount=0.0, adress='edit', client_name='edit',
                           tel='-', saler='edit', saler_tel='-', apartment='商务部')
         db.session.add(add_item)
         db.session.commit()
@@ -1648,7 +1689,7 @@ def orders_commerce_return_json():
         ##print row[1]
         result = {}
         result['id'] = n + 1
-        result['company_name'] = row[1]
+	result['company_name'] = row[1]
         result['order_number'] = row[2]
         result['tax_type'] = row[3]
         result['adress'] = row[4]
@@ -1657,6 +1698,12 @@ def orders_commerce_return_json():
         result['saler'] = row[7]
         result['saler_tel'] = row[8]
         result['apartment'] = row[9]
+        result['order_date'] = row[10]
+        result['product_type'] = row[11]
+        result['product_price'] = row[12]
+        result['product_num'] = row[13]
+        result['order_amount'] = row[14]
+
         result['length'] = len(data)
 
         jsonData.append(result)
@@ -1670,8 +1717,13 @@ def orders_commerce_return_json():
 def orders_others():
     # if request.method == 'POST':
     id = request.form.get('row[id]', '')
+    order_date = request.form.get('row[order_date]')
     company_name = request.form.get('row[company_name]', '')
     order_number = request.form.get('row[order_number]', '')
+    product_type = request.form.get('row[product_type]', '')
+    product_price = request.form.get('row[product_price]', '')
+    product_num = request.form.get('row[product_num]', '')
+    order_amount = request.form.get('row[order_amount]', '')
     tax_type = request.form.get('row[tax_type]', '')
     adress = request.form.get('row[adress]', '')
     client_name = request.form.get('row[client_name]', '')
@@ -1724,8 +1776,8 @@ def orders_others():
         old_Value = Orders.query.filter_by(id=id_concect[int(id)]).first()
         if old_Value is not None:
             print "更新数据"
-            Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"company_name": company_name, "order_number": order_number, "tax_type": tax_type,
+	    Orders.query.filter_by(id=id_concect[int(id)]).update(
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 
@@ -1936,8 +1988,9 @@ def orders_others():
     add = request.form.get('add', '')
 
     if add == 'add_true':
-        add_item = Orders(company_name='edit', order_number='edit', tax_type='增值税', adress='edit', client_name='edit',
-                          tel='-', saler='edit', saler_tel='-', apartment='部门')
+	get_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+	add_item = Orders(order_date=get_date,company_name='edit', order_number='edit', product_type='edit',product_price=0.0,product_num=0,tax_type='增值税',order_amount=0.0, adress='edit', client_name='edit',
+                          tel='-', saler='edit', saler_tel='-', apartment='其它')
         db.session.add(add_item)
         db.session.commit()
 
@@ -2022,7 +2075,7 @@ def orders_others_return_json():
         ##print row[1]
         result = {}
         result['id'] = n + 1
-        result['company_name'] = row[1]
+	result['company_name'] = row[1]
         result['order_number'] = row[2]
         result['tax_type'] = row[3]
         result['adress'] = row[4]
@@ -2031,6 +2084,11 @@ def orders_others_return_json():
         result['saler'] = row[7]
         result['saler_tel'] = row[8]
         result['apartment'] = row[9]
+        result['order_date'] = row[10]
+        result['product_type'] = row[11]
+        result['product_price'] = row[12]
+        result['product_num'] = row[13]
+        result['order_amount'] = row[14]
         result['length'] = len(data)
 
         jsonData.append(result)
@@ -2055,7 +2113,7 @@ def production_orders():
                 print '价格表不存在，新建'
                 add_price_storage = Price_Storage(requisition_number=enter_production, price_C100='0.0',price_AX500='0.0',
                                                   price_AX700='0.0',price_AX700_multi='0.0',price_AX730='0.0', price_AX800='0.0',
-                                                  price_E300='0.0', price_T300='0.0', price_T600='0.0', price_1GB='0.0',
+                                                  price_E300='0.0', price_T300='0.0', price_T600='0.0',price_N600NW='0.0', price_1GB='0.0',
                                                   price_2GB='0.0', price_4GB='0.0', price_8GB='0.0',
                                                   price_4GBFLASH='0.0', price_8GBFLASH='0.0',
                                                   price_8GBHD='0.0', price_16GBHD='0.0', price_32GBHD='0.0',
@@ -2306,10 +2364,9 @@ def production_model():
 
 
 
-        # 计算成本 单价 * 数量
         # 获取AX700单价
-        if Semi_finished.query.filter_by(name='AX700 瘦客户机 (J1900)').first() is not None:
-            price_AX700 = Semi_finished.query.filter_by(name='AX700 瘦客户机 (J1900)').first().price
+        if Semi_finished.query.filter_by(name='AX700 瘦客户机 (J192G8G)').first() is not None:
+            price_AX700 = Semi_finished.query.filter_by(name='AX700 瘦客户机 (J192G8G)').first().price
             print 'price_AX700库存', price_AX700
         else:
             price_AX700 = '0.0'
@@ -2334,6 +2391,14 @@ def production_model():
             price_AX800 = Semi_finished.query.filter_by(name='AX800 迷你电脑').first().price
         else:
             price_AX800 = '0.0'
+
+
+        # 获取N600NW瘦客户机单价
+        if Semi_finished.query.filter_by(name='N600NW瘦客户机(J1900)').first() is not None:
+            price_N600NW = Semi_finished.query.filter_by(name='N600NW瘦客户机(J1900)').first().price
+        else:
+            price_N600NW = '0.0'
+
 
     # 从对应通知单中获取相应的价格信息
     if model != 'edit' and model != '':
@@ -2479,6 +2544,14 @@ def production_model():
         else:
             price_AX800 = 0.0
 
+
+            # 获取N600NW单价
+        if Price_Storage.query.filter_by(requisition_number=orders).first() is not None:
+            price_N600NW = Price_Storage.query.filter_by(requisition_number=orders).first().price_N600NW
+        else:
+            price_N600NW = 0.0
+
+
     print '读取相应生产单信息'
     if Production_Orders.query.filter_by(requisition_number=orders).first() is not None:
         # 获取orders里的信息
@@ -2569,6 +2642,8 @@ def production_model():
                 product_price = price_AX730
             elif model == 'AX800':
                 product_price = price_AX800
+	    elif model == 'N600NW':
+		product_price = price_N600NW
             else:
                 product_price = 0.0
         else:
@@ -3618,9 +3693,9 @@ def production_model():
                     db.session.delete(del_package_custom)
                 db.session.commit()
 
-        if model=='AX500' or model == 'AX700' or model == 'AX700双网口' or model == 'AX730' or model == 'AX800':
+        if model=='AX500' or model == 'AX700' or model == 'AX700双网口' or model == 'AX730' or model == 'AX800' or model == 'N600NW':
             
-            print '生成出库记录AX500 or AX700 or AX700双网口 or AX730 or AX800'
+            print '生成出库记录AX500 or AX700 or AX700双网口 or AX730 or AX800 or N600NW'
             output_list = ['X86说明书', '保修卡']
             # 根据配件名获取配件固定ID
             get_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
@@ -4561,9 +4636,9 @@ def production_model():
          "wireless_price": wireless_price, "discs_price": discs_price,
          "install_price": install_price, "install_price": install_price, "all_const": all_const})
 
-        print "Price_Storage", orders, price_C100, price_E300, price_AX700,price_AX500
+        #print "Price_Storage", orders, price_C100, price_E300, price_AX700,price_AX500
 
-        Price_Storage.query.filter_by(requisition_number=orders).update({'price_C100': price_C100, 'price_E300': price_E300, 'price_T300': price_T300, 'price_T600': price_T600,'price_AX500':price_AX500,'price_AX700': price_AX700,'price_AX700_multi': price_AX700_multi,'price_AX730': price_AX730, 'price_AX800': price_AX800, 'price_2GB': price_2GB,'price_4GB': price_4GB, 'price_8GB': price_8GB, 'price_4GBFLASH': price_4GBFLASH,'price_8GBFLASH': price_8GBFLASH, 'price_8GBHD': price_8GBHD, 'price_16GBHD': price_16GBHD,'price_32GBHD': price_32GBHD, 'price_64GBHD': price_64GBHD, 'price_128GBHD': price_128GBHD,'price_512GBHD': price_512GBHD, 'price_ARMRTL8188': price_ARMRTL8188, 'price_X86Intel': price_X86Intel,'price_drivercd': price_drivercd, 'price_ThinVirt': price_ThinVirt})
+        Price_Storage.query.filter_by(requisition_number=orders).update({'price_C100': price_C100, 'price_E300': price_E300, 'price_T300': price_T300, 'price_T600': price_T600,'price_AX500':price_AX500,'price_AX700': price_AX700,'price_AX700_multi': price_AX700_multi,'price_AX730': price_AX730, 'price_AX800': price_AX800,'price_N600NW':price_N600NW,'price_2GB': price_2GB,'price_4GB': price_4GB, 'price_8GB': price_8GB, 'price_4GBFLASH': price_4GBFLASH,'price_8GBFLASH': price_8GBFLASH, 'price_8GBHD': price_8GBHD, 'price_16GBHD': price_16GBHD,'price_32GBHD': price_32GBHD, 'price_64GBHD': price_64GBHD, 'price_128GBHD': price_128GBHD,'price_512GBHD': price_512GBHD, 'price_ARMRTL8188': price_ARMRTL8188, 'price_X86Intel': price_X86Intel,'price_drivercd': price_drivercd, 'price_ThinVirt': price_ThinVirt})
 
         db.session.commit()
 
@@ -4585,7 +4660,7 @@ def production_model():
                        test_data=test_data, remarks=remarks, auditor=auditor, price_C100=float(price_C100),
                        price_E300=float(price_E300), price_T300=float(price_T300), price_T600=float(price_T600),price_AX500=float(price_AX500),
                        price_AX700=float(price_AX700),price_AX700_multi=float(price_AX700_multi),price_AX730=float(price_AX730),
-                       price_AX800=float(price_AX800),
+                       price_AX800=float(price_AX800),price_N600NW=float(price_N600NW),
                        price_2GB=price_2GB, price_4GB=price_4GB, price_8GB=price_8GB, price_4GBFLASH=price_4GBFLASH,
                        price_8GBFLASH=price_8GBFLASH, price_8GBHD=price_8GBHD
                        , price_16GBHD=price_16GBHD, price_32GBHD=price_32GBHD, price_64GBHD=price_64GBHD,
@@ -4777,8 +4852,6 @@ def delivery_orders_return_json():
     jsonData = []
 
     for n, row in enumerate(data):
-        print data[0]
-        ##print row[1]
         result = {}
         result['id'] = row[0]
         result['no'] = row[1]

@@ -6,6 +6,12 @@
 
 {% block styles %}
     {{ super() }}
+    <style>
+        #tips{
+	    text-align:left;
+	    font-size: 20px;
+        }
+    </style>
 {% endblock %}
 
 
@@ -17,15 +23,17 @@
                     <h4 align="center" >送货单</h4>
                 </div>
             </div>
+	   
+	    <p id="tips"></p>
 
             <div id="toolbar">
                 <button id="remove" class="btn btn-danger" disabled>
                     <i class="glyphicon glyphicon-remove"></i> 删除
                 </button>
-
-
-
+	       
             </div>
+	
+
 
             <br>
             <div class="row" >
@@ -216,6 +224,11 @@
       $(document).ready(function () {
           //调用函数，初始化表格
           initTable();
+
+	  $('#remove').click(function(){
+	     //$('#tips').text("耐心等待,请勿刷新网页");
+	     alert("耐心等待,请勿刷新网页,点击确定执行删除");
+	  });
 
           function getIdSelections() {
             return $.map($table.bootstrapTable('getSelections'), function (row) {

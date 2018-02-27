@@ -179,8 +179,23 @@
             },{
                 field: 'id',
                 title: 'ID',
-                align: 'left',
+                align: 'center',
                 sortable: true,
+
+            },{
+                field: 'order_date',
+                title: '日期',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '日期',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },
 
             },{
                 field: 'company_name',
@@ -214,11 +229,46 @@
                 field: 'tax_type',
                 title: '税种 ',
                 align: 'center',
-                
                 editable: {
                     type: 'text',
                     title: '税种',
-                    emptytext:'-', 
+                    emptytext:'-',
+                }
+            },{
+                field: 'product_type',
+                title: '型号',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '型号',
+                    emptytext:'-',
+                }
+            },{
+                field: 'product_price',
+                title: '终端单价',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '终端单价',
+                    emptytext:'-',
+                }
+            },{
+                field: 'product_num',
+                title: '数量',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '数量',
+                    emptytext:'-',
+                }
+            },{
+                field: 'order_amount',
+                title: '合同金额',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    title: '合同金额',
+                    emptytext:'-',
                 }
             },{
                 field: 'adress',
@@ -251,7 +301,7 @@
                 }
 
             },{
-                field: 'tel',
+               field: 'tel',
                 title: '联系方式',
                 align: 'left',
                 editable: {
@@ -287,7 +337,7 @@
                     title: '联系方式',
                     validate: function (value) {
                         value = $.trim(value);
-                        if (!value) {
+                       if (!value) {
                             return 'This field is required';
                         }
                     },
@@ -295,17 +345,7 @@
             },{
                 field: 'apartment',
                 title: '部门',
-                align: 'left',
-                editable: {
-                    type: 'text',
-                    title: '部门',
-                    validate: function (value) {
-                        value = $.trim(value);
-                        if (!value) {
-                            return 'This field is required';
-                        }
-                    },
-                }
+                align: 'center',
             }, {
                 field: 'operate',
                 title: '操作',
@@ -354,6 +394,9 @@
             '<a class="create_delivery" href="javascript:;" title="生成送货单">',
 {#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成送货单',
 
+            '</a>',' ',
+            '<a class="add_to_collect" href="javascript:;" title="添加到订单结算表">',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成结算表',
             '</a>',' ',
 
            ].join('');

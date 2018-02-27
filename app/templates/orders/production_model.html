@@ -81,6 +81,9 @@
                                         {% elif model == 'AX800' %}
                                         <div><h5>成本¥: ( {{ price_AX800 }} + {{ memory_price }} + {{ harddisk_price }} + {{ wireless_price }}  )x {{ nums }} + {{ discs_price }} + {{ install_price }}  = {{ (product_price + memory_price + harddisk_price + wireless_price ) * nums + discs_price + install_price }}</h5></div>
  
+                                       {% elif model == 'N600NW' %}
+                                        <div><h5>成本¥: ( {{ price_N600NW }} + {{ memory_price }} + {{ harddisk_price }} + {{ wireless_price }}  )x {{ nums }} + {{ discs_price }} + {{ install_price }}  = {{ (product_price + memory_price + harddisk_price + wireless_price ) * nums + discs_price + install_price }}</h5></div>
+
 
                                         {% else %}
                                         <div><h5>成本¥:</h5></div>
@@ -166,12 +169,10 @@
                                                 <input type="radio" name="model" class='model' value="AX730" {% if model=="AX730" %}checked{% endif %}/> AX730&nbsp&nbsp&nbsp 
 
                                                 <input type="radio" name="model" class='model' value="AX800" {% if model=="AX800" %}checked{% endif %}/> AX800&nbsp&nbsp&nbsp 
-
-                                                 
-                                                ¥<input type="text" name="model_price" id='model_price' value="{{ model_price }}"  />
+						<input type="radio" name="model" class='model' value="N600NW" {% if model=="N600NW" %}checked{% endif %}/> N600NW&nbsp&nbsp&nbsp
 
 
-
+                                                <input type="text" name="model_price" id='model_price' value="{{ model_price }}"  />
 
 
                                            </div> 
@@ -1089,12 +1090,6 @@
           }
 
 
-
-
-
-
-
-
           //点击AX700,
           $("input[type=radio][name=model][value='AX700']").click(function () {
            
@@ -1181,6 +1176,41 @@
           if ($("input[type=radio][name=model][value='AX800']").prop('checked')){
              $("#model_price").val({{ price_AX800 }});
           }
+
+
+          //点击N600NW,
+          $("input[type=radio][name=model][value='N600NW']").click(function () {
+           
+             $("input[type=radio][name=cpu][value='J1900 四核2.0G']").prop('checked','checked');
+             $("input[type=radio][name=memory][value='2G']").prop('checked','checked');
+             $("input[type=radio][name=harddisk][value='8GB 固态硬盘']").prop('checked','checked'); 
+             $("input[type=radio][name=usb][value='5个usb接口']").prop('checked','checked');
+             $("input[type=radio][name=network][value='1个100/1000Mbps']").prop('checked','checked');
+
+             //$("input[type=radio][name=memory][value='2G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='4G']").prop("disabled",false);
+             //$("input[type=radio][name=memory][value='8G']").prop("disabled",false);   
+             
+             $("#model_price").val({{ price_N600NW }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+
+          })
+
+          if ($("input[type=radio][name=model][value='N600NW']").prop('checked')){
+             $("#model_price").val({{ price_N600NW }});
+             //$("#memory_price").val({{ price_2GB }});
+             //$("#harddisk_price").val({{ price_8GBHD }});
+          }
+
+
+
+
+
+
+
+
+
 
 
           //点击内存选项
@@ -1352,11 +1382,6 @@
           if ($('.model').prop('checked')){
 
           }
-
-
-
-
-
 
 
       })

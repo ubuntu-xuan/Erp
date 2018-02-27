@@ -12,7 +12,7 @@
         <div class="right_col" role="main">
             <div class="row">
                 <div class="col-md-11">
-                    <h4 align="center" >应收货款</h4>
+                    <h4 align="center" >已收款</h4>
                 </div>
             </div>
 
@@ -130,6 +130,11 @@
                 align: 'center',
 
             },{
+                field: 'date',
+                title: '日期',
+                align: 'center',
+
+            },{
                 field: 'purchase_order',
                 title: '合同号',
                 align: 'center',
@@ -145,20 +150,16 @@
                 align: 'center',
 
             },{
+                field: 'tax_type',
+                title: '税种',
+                align: 'center',
+            },
+              {
                 field: 'payment',
-                title: '应收货款¥',
+                title: '应收货款',
                 align: 'center',
 
-            },{
-                field: 'received_payment',
-                title: '已收货款¥',
-                align: 'center',
-                editable: {
-                    type: 'text',
-                    emptytext: "*",
-                    title: '已收货款¥',
-                },
-            },{
+            },{ 
                 field: 'status',
                 title: '状态',
                 align: 'center',
@@ -172,37 +173,22 @@
                     ]
                 }
             },{
+                field: 'received_payment',
+                title: '已收货款',
+                align: 'center',
+                editable: {
+                    type: 'text',
+                    emptytext: "*",
+                    title: '已收货款¥',
+                },
+            },{
                 field: 'operate',
                 title: '操作',
                 align: 'center',
                 events: operateEvents,
                 formatter: operateFormatter
-            },{
-                field: 'iftax',
-                title: '是否含税',
-                align: 'center',
-            },{
-                field: 'tax',
-                title: '税金¥',
-                align: 'center',
-
-            },{
-                field: 'cost',
-                title: '成本¥',
-                align: 'center',
-
-            },{
-                field: 'commission',
-                title: '佣金¥',
-                align: 'center',
-            },{
-                field: 'profit',
-                title: '利润¥',
-                align: 'center',
-
-
-            }],
-
+            }
+           ],
 
             queryParamsType : "undefined",
 

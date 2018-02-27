@@ -45,7 +45,46 @@ def getCon():
 @main.route('/payment/received_payment',methods = ['GET','POST'])
 @login_required
 def received_payment():
-       
+    conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+
+    cursor = conn.cursor()
+    
+    '''
+	从订单获取日期 税种
+        由合同号获取送货单编号，获取型号 单价 数量 合同金额
+    '''
+    #获取payment中所有订单号
+    cursor.execute("SELECT no from payment ORDER BY id")
+    delivery_no = cursor.fetchall()
+    for no in delivery_no:
+	#cursor.execute("SELECT order_date from orders where order_number='%s'"%order[0])
+	#print("SELECT production_name1  from delivery_%s"%no[0])
+        cursor.execute("SELECT production_name1  from delivery_%s"%no[0])
+        pro_mess = cursor.fetchall()   
+	print('pro_mess',no,pro_mess[0])    
+
+
+
+    #for i in order_data:
+    #cursor.execute("SELECT num from payment ORDER BY id")
+
+    #nums = cursor.fetchall()
+
+    #for pay in payment:
+	#for num in nums:
+	    #print(pay,num)
+
+
+
+
+
+    #for date in order_date:
+
+
+    #cursor.execute("UPDATE payment SET tem_cost='%s' where purchase_order='%s'"%(date[0],i[0]))
+    #print('update')
+    #conn.commit()
+
     if request.method == 'POST':
         #修改数据
         id = request.form.get('row[id]', '')
@@ -162,7 +201,6 @@ def received_payment_return_json():
         jsonData = []
 
         for n,row  in enumerate(data):
-            print data[0]
             ##print row[1]
             result = {}
             result['id'] = n + 1
@@ -178,8 +216,15 @@ def received_payment_return_json():
             result['profit'] = row[10]
             result['tax'] = row[11]
             result['status'] = row[12]
-     
-
+            result['date'] = row[13]
+	    result['type'] = row[14]
+	    result['price'] = row[15]
+	    result['num'] = row[16]
+	    result['tem_cost'] = row[17]
+	    result['server_cost'] = row[18]
+	    result['consult_cost'] = row[19]
+	    result['after_sales'] = row[20]
+	    result['tax_type'] = row[21]
 
             jsonData.append(result)
 
@@ -324,7 +369,17 @@ def not_received_payment_return_json():
             result['profit'] = row[10]
             result['tax'] = row[11]
             result['status'] = row[12]
+            result['date'] = row[13]
+            result['type'] = row[14]
+            result['price'] = row[15]
+            result['num'] = row[16]
+            result['tem_cost'] = row[17]
+            result['server_cost'] = row[18]
+            result['consult_cost'] = row[19]
+            result['after_sales'] = row[20]
+            result['tax_type'] = row[21]
      
+
             jsonData.append(result)
 
         return json.dumps(jsonData)
@@ -485,4 +540,88 @@ def get_receipts_file(filename):
     print "获取上传文件：",filename
     return send_from_directory(os.path.join(app.config['UPLOADED_RECEIPT_FOLDER']), filename=filename)
 
+
+
+
+'''合同结算'''
+@main.route('/payment/contract_accountant',methods = ['GET','POST'])
+@login_required
+def contract_accountant():
+    conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+
+    cursor = conn.cursor()
+
+    '''
+        从订单获取日期 税种
+        由合同号获取送货单编号，获取型号 单价 数量 合同金额
+    '''
+    #获取payment中所有订单号
+    cursor.execute("SELECT order_number,company_name,tax_type,order_date from orders ORDER BY id")
+    delivery_no = cursor.fetchall()
+    for no in set(delivery_no):
+	print 'no',no
+	print('number',no[0],'client',no[1])
+	#Payment.query.filter_by(no=delivery_no).update({'received_payment':received_payment})
+	cursor.execute("INSERT INTO   contract_accountant(purchase_order,client_name,tax_type,order_date) VALUES('%s','%s','%s','%s')"%(no[0],no[1],no[2],no[3]))
+	conn.commit()
+
+
+        #cursor.execute("SELECT order_date from orders where order_number='%s'"%order[0])
+        #print("SELECT production_name1  from delivery_%s"%no[0])
+        #cursor.execute("SELECT production_name1  from delivery_%s"%no[0])
+        #pro_mess = cursor.fetchall()
+        #print('pro_mess',no,pro_mess[0])
+   
+
+
+
+
+
+
+
+    return render_template('payment/contract_accountant.html')
+
+
+
+
+
+@main.route('/payment/contract_accountant/return_json',methods = ['GET','POST'])
+@login_required
+def contract_accountant_return_json():
+        app = current_app._get_current_object()
+        try:
+            '''warning:这里需要设置为环境获取'''
+            db = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = db.cursor()
+        except:
+            print 'MySQL connect fail...'
+        cursor.execute("SELECT * from contract_accountant")
+        data = cursor.fetchall()
+        cursor.close()
+
+        db.close()
+        jsonData = []
+
+        for n,row  in enumerate(data):
+            print data[0]
+            ##print row[1]
+            result = {}
+            result['order_date'] = row[0]
+	    result['purchase_order'] = row[1]
+	    result['client_name'] = row[2]
+	    result['product_type'] = row[3]
+	    result['product_price'] = row[4]
+	    result['product_num'] = row[5]
+	    result['tax_type'] = row[6]
+	    result['order_amount'] = row[7]
+	    result['tem_cost'] = row[8]
+	    result['server_cost'] = row[9]
+	    result['tax'] = row[10]
+	    result['consult_cost'] = row[11]
+	    result['after_sales'] = row[12]
+	    result['profit'] = row[13]
+
+            jsonData.append(result)
+
+        return json.dumps(jsonData)
 

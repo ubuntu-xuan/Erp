@@ -400,19 +400,20 @@ def fittings():
         cursor = database.cursor()
     except:
         print 'MySQL connect fail...'
+	database.rollback()
 
     cursor.execute("SELECT id from fittings")
-    data = cursor.fetchall()
+    fitsId = cursor.fetchall()
     
     #建立id关联
 
-    if len(data) !=0:
+    if len(fitsId) !=0:
 	
         input_get=[]
         output_get=[]
 
         get_data=[]
-        for i,w in enumerate(data):
+        for i,w in enumerate(fitsId):
             get_data.append(w[0])
 
         id_from_table = []
@@ -423,35 +424,16 @@ def fittings():
             id_from_mysql.append(datas)
         id_concect = dict(zip(id_from_table,id_from_mysql))
     print 'fittings id关联',id_concect
-    '''
-    #根据Fittings记录找入库记录
-    fittings = db.session.query(Fittings).filter_by(name='2GB内存').first()
-    fittings_inputs = db.session.query(Fittings_Inputs).filter_by(belongs='1').first()
-
-    #通过fittins_inputs = db.relationship("Fittings_Inputs", backref="fittings")来获取外键连接的一方
-    print fittings.fittins_inputs[0].remarks
-
-   #通过fittins_inputs = db.relationship("Fittings_Inputs", backref="fittings")来获取外键连接的一方
-    print  fittings_inputs.fittings.name
-    '''
+    
     #更新库存量
-    try:
-        '''warning:这里需要设置为环境获取'''
-        database = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
-        cursor = database.cursor()
-    except:
-        print 'MySQL connect fail...'
 
-    cursor.execute("SELECT id from fittings")
-    data = cursor.fetchall()
-
-    if len(data) !=0:
+    if len(fitsId) !=0:
     
         input_get=[]
         output_get=[]
 
         get_data=[]
-        for i,w in enumerate(data):
+        for i,w in enumerate(fitsId):
             get_data.append(w[0])
 
         id_from_table = []
@@ -483,13 +465,26 @@ def fittings():
             for i in range(len(input_get)):
                 stock_data =input_get[i][0]-output_get[i][0]
                 stock.append(stock_data)
+	
+	print('入库-出库')
+	print(stock)
 
+
+
+	print(get_data)
+	print(len(get_data))
         #这里要提交才能更新值
-        for i,w in enumerate(get_data):
-            cursor.execute("UPDATE fittings SET nums=%s WHERE id=%s"%(stock[i],w))
-        database.commit()
-    
-    # if request.method == 'POST':
+	try:
+            for i,w in enumerate(get_data):
+	        print('jjjjjjjjjjjjjjjjjjjj')
+	        print(stock[i])
+	        print(w)
+                cursor.execute("UPDATE fittings SET nums=%s WHERE id=%s"%(stock[i],w))
+ 	        print('插入成功') 
+            database.commit()
+	except:
+	    print('errorrrr')
+
     id = request.form.get('row[id]', '')
     nums= request.form.get('row[nums]', '')
     oldValue = request.form.get('oldValue', '')
@@ -515,53 +510,12 @@ def fittings():
     '''删除记录并删除相关表'''
     def reset_delete(ids):
         app = current_app._get_current_object()
-        try:
-            '''warning:这里需要设置为环境获取'''
-            database = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
-            cursor = database.cursor()
-        except:
-            print 'MySQL connect fail...'
 
         cursor.execute("DELETE FROM fittings WHERE id=%s"%id_concect[int(ids)])
 
-        #cursor.execute("ALTER TABLE fittings DROP id")
-        #cursor.execute("ALTER TABLE fittings ADD id INT( 8 ) NOT NULL FIRST")
-        #cursor.execute("ALTER TABLE fittings MODIFY COLUMN id INT( 8 ) NOT NULL AUTO_INCREMENT,ADD PRIMARY KEY(id)")
-
-        #cursor.execute("DROP TABLE fittings_input%s"%id_concect[int(ids)])
-        #cursor.execute("DROP TABLE fittings_output%s"%id_concect[int(ids)])
-
         cursor.close()
         database.commit()
-        database.close()
-
-    # def create_tables():
-    #     get_time = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-    #     app = current_app._get_current_object()
-    #     try:
-    #         '''warning:这里需要设置为环境获取'''
-    #         database = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
-    #         cursor = database.cursor()
-    #     except:
-    #         print 'MySQL connect fail...'
-
-
-    #     cursor.execute("SELECT id from fittings")
-    #     data = cursor.fetchall()
-    #     get_data=[]
-    #     for i,w in enumerate(data):
-    #         get_data.append(w[0])
-  
-        
-    #     cursor.execute("CREATE TABLE fittings_input%s(id int PRIMARY KEY NOT NULL AUTO_INCREMENT ,dates varchar(64),nums INT,price varchar(64),suppliers varchar(64),examine varchar(64) ,sendee varchar(64) ,remarks varchar(64)) "%(max(get_data)))
-
-    #     cursor.execute("CREATE TABLE fittings_output%s(id int PRIMARY KEY NOT NULL AUTO_INCREMENT ,dates varchar(64),nums INT,purpose varchar(64) ,receiptor varchar(64) ,remarks varchar(64)) "%(max(get_data)))
-    #     cursor.execute("INSERT INTO fittings_output%s(dates,nums,purpose,receiptor,remarks) VALUE ('%s',0,'edit','edit','')"%(max(get_data),get_time))
-    #     cursor.execute("INSERT INTO fittings_input%s(dates,nums,price,suppliers,examine,sendee,remarks) VALUE ('%s',0,'0','edit','是','edit','')"%(max(get_data),get_time))
-    #     cursor.close()
-    #     database.commit()
-    #     database.close()
-
+    
     #删除数据
     ids = request.form.get('ids[]','')
     remove_name = request.form.get('remove_name[]','')
@@ -580,16 +534,10 @@ def fittings():
         add_item = Fittings(name='edit',price='0.00',nums='0')
         db.session.add(add_item)
         db.session.commit()
-        #create_tables()
        	
         db.session.commit()
     
     #判断采购提醒表是否为空，不为空则显示提醒
-    try:                 
-        database = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
-        cursor = database.cursor()
-    except:
-        print 'MySQL connect fail...'
 
     cursor.execute("SELECT * FROM  purchase_list")
     data = cursor.fetchall()
@@ -600,7 +548,9 @@ def fittings():
     elif  data != ():
         print '不为空',data
         tip = "提示"
-
+    
+    cursor.close()
+    database.close()
 
     return render_template('repertory/fittings.html',tip=tip)
 
