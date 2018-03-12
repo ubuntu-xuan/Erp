@@ -27,8 +27,6 @@
                 <button id="add" class="btn btn-success" >
                     <i class="glyphicon glyphicon-plus"></i> 增加
                 </button>
-
-
             </div>
 
             <div class="row" >
@@ -139,7 +137,25 @@
                 });
                 window.location.href = "{{ url_for('main.delivery_orders') }}";    
               },
-
+              'click .create_contract_account': function (e, value, row, index) {
+               $.ajax({
+                    type: "post",
+                    url: "/orders",
+                    async: false,
+                    data:{
+                        'create_contract_account':row.order_number,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+			   
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                window.open("{{ url_for('main.contract_accountant') }}");    
+              }
            
         };
 
@@ -226,49 +242,27 @@
                     },
                 }
             },{
+                field: 'order_amount',
+                title: '合同金额',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '合同金额',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
                 field: 'tax_type',
                 title: '税种 ',
                 align: 'center',
                 
                 editable: {
                     type: 'text',
-                    title: '税种',
-                    emptytext:'-', 
-                }
-            },{
-                field: 'product_type',
-                title: '型号',
-                align: 'center',
-                editable: {
-                    type: 'text',
-                    title: '型号',
-                    emptytext:'-', 
-                }
-            },{
-                field: 'product_price',
-                title: '终端单价',
-                align: 'center',
-                editable: {
-                    type: 'text',
-                    title: '终端单价',
-                    emptytext:'-', 
-                }
-            },{
-                field: 'product_num',
-                title: '数量',
-                align: 'center',
-                editable: {
-                    type: 'text',
-                    title: '数量',
-                    emptytext:'-', 
-                }
-            },{
-                field: 'order_amount',
-                title: '合同金额',
-                align: 'center',
-                editable: {
-                    type: 'text',
-                    title: '合同金额',
+                    title: '税种(增值税/不含税)',
                     emptytext:'-', 
                 }
             },{
@@ -390,14 +384,14 @@
 {#            '<i class="glyphicon glyphicon-remove"></i>',#}'查看',
             '</a>',' ',
             '<a class="create_productions" href="javascript:;" title="生成生产通知单">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成生产单',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生产单',
             ' ',
             '<a class="create_delivery" href="javascript:;" title="生成送货单">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成送货单',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'送货单',
 
             '</a>',' ',
-	    '<a class="add_to_collect" href="javascript:;" title="添加到订单结算表">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成结算表',
+	    '<a class="create_contract_account" href="javascript:;" title="添加到合同结算表">',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'结算表',
             '</a>',' ',
 
            ].join('');
@@ -426,7 +420,6 @@
 
        }) 
           
- 
           //调用函数，初始化表格
           initTable();
 
@@ -448,19 +441,14 @@
             });
           }
 
-
-
           var $table = $('#table'),$remove = $('#remove'),$add = $('#add'),$create = $('#create');
         
           selections = [];
-          
-          
-
+                  
           $table.on('page-change.bs.table', function () {
             $('#table').bootstrapTable('scrollTo', '10px');
           });
-    
-           
+             
           $table.on('check.bs.table uncheck.bs.table ' +
                 'check-all.bs.table uncheck-all.bs.table', function () {
             $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
@@ -470,11 +458,7 @@
             // push or splice the selections if you want to save all data selections
 
             });
-          
-
-           
-
-
+                   
           $table.on('all.bs.table', function (e, name, args) {
             console.log(name, args);
           });
@@ -531,9 +515,6 @@
                     }
                 });
 
-
-
-
               $table.bootstrapTable('refresh', {url: '/orders/return_json'});
 
           });
@@ -548,12 +529,5 @@
 {% endblock %}
 
 
-
-
-
-
-
-
- 
   </body>
 </html>

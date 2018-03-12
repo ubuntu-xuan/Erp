@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}编写配件成本{% endblock%}
+
+
+
+{% block styles %}
+    {{ super() }}
+    <style >
+      .commission{font-size:14px;width:150px;}
+      .table-head{font-size:14px;}
+      .table-bordered th,  
+      .table-bordered td {  
+          border: 0.5px solid #000 !important;height:25px!important;font-size:10.5pt !important; 
+      }
+    </style> 
+
+{% endblock %}
+
+{% block content %}
+        <!-- page content -->
+	<div class="right_col" role="main">
+	
+	</div>
+	<!-- 配件成本模态框（Modal） -->
+	<div class="modal fade" id="fittings_cost_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="fittingsCostLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" style="text-align:center">
+               	       配件成本
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+	    <form class="form" id='form' role="form" method="post"  > 
+            <div class="row" >
+                    <div class="col-md-12" >                       
+                        <br>
+                        <div class="fixed-table-container" >
+                            <div class="fixed-table-header" >
+                                <table class="table table-hover  " id="table" >           
+   			           <thead>
+      				   <tr>
+         			       <th>id</th>
+        			       <th>配件名称</th>
+         			       <th>数量</th>
+        			       <th>单位</th>
+         			       <th>单价¥</th>
+                                       <th>备注</th>
+      				   </tr>
+   				   </thead>
+   				<tbody>
+      				<tr>
+         			    <td >01</td>
+         			    <td><input class="form-control" type='test' name='fitting1' value='{{ fitting1 }}' /></td>
+         			    <td><input class="form-control" type='test' name='num1' value='{{ num1 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit1' value='{{ unit1 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit_price1' value='{{ unit_price1 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark1' value='{{ remark1 }}' /></td>
+      				</tr>
+      				<tr>
+         			    <td >02</td>
+         			    <td><input class="form-control" type='test' name='fitting2' value='{{ fitting2 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num2' value='{{ num2 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit2' value='{{ unit2 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit_price2' value='{{ unit_price2 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark2'  value='{{ remark2 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >03</td>
+         			    <td><input class="form-control" type='test' name='fitting3' value='{{ fitting3 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num3' value='{{ num3 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit3' value='{{ unit3 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price3' value='{{ unit_price3 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark3'  value='{{ remark3 }}'/></td>
+      				</tr>
+       				<tr>
+         			    <td >04</td>
+         			    <td><input class="form-control" type='test' name='fitting4' value='{{ fitting4 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num4' value='{{ num4 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit4' value='{{ unit4 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price4' value='{{ unit_price4 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark4'  value='{{ remark4 }}'/></td>
+      				</tr>
+       				<tr>
+         			    <td >05</td>
+         			    <td><input class="form-control" type='test' name='fitting5' value='{{ fitting5 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num5' value='{{ num5 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit5' value='{{ unit5 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price5' value='{{ unit_price5 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark5'  value='{{ remark5 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >06</td>
+         			    <td><input class="form-control" type='test' name='fitting6' value='{{ fitting6 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num6' value='{{ num6 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit6' value='{{ unit6 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price6' value='{{ unit_price6 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark6'  value='{{ remark6 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >07</td>
+         			    <td><input class="form-control" type='test' name='fitting7' value='{{ fitting7 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num7' value='{{ num7 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit7' value='{{ unit7 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price7' value='{{ unit_price7 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark7'  value='{{ remark7 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >08</td>
+         			    <td><input class="form-control" type='test' name='fitting8' value='{{ fitting8 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num8' value='{{ num8 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit8' value='{{ unit8 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price8' value='{{ unit_price8 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark8'  value='{{ remark8 }}'/></td>
+      				</tr>
+
+      				<tr>
+         			    <td >09</td>
+         			    <td><input class="form-control" type='test' name='fitting9' value='{{ fitting9 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num9' value='{{ num9 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit9' value='{{ unit9 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price9' value='{{ unit_price9 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark9'  value='{{ remark9 }}'/></td>
+      				</tr>
+
+      				<tr>
+         			    <td >10</td>
+         			    <td><input class="form-control" type='test' name='fitting10' value='{{ fitting10 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num10' value='{{ num10 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit10' value='{{ unit10 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price10' value='{{ unit_price10 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark10'  value='{{ remark10 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >11</td>
+         			    <td><input class="form-control" type='test' name='fitting11' value='{{ fitting11 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num11' value='{{ num11 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit11' value='{{ unit11 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price11' value='{{ unit_price11 }}'/></td>
+         		
+         			    <td><input class="form-control" type='test' name='remark11'  value='{{ remark11 }}'/></td>
+      				</tr>
+      				<tr>
+         			    <td >12</td>
+         			    <td><input class="form-control" type='test' name='fitting12' value='{{ fitting12 }}'/></td>
+         			    <td><input class="form-control" type='test' name='num12' value='{{ num12 }}' /></td>
+         			    <td><input class="form-control" type='test' name='unit12' value='{{ unit12 }}'  /></td>
+         			    <td><input class="form-control" type='test' name='unit_price12' value='{{ unit_price12 }}'/></td>
+     
+         			    <td><input class="form-control" type='test' name='remark12'  value='{{ remark12 }}'/></td>
+      				</tr>
+
+   				</tbody>
+
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+            </form>
+            </div>
+          </div>       
+        </div>
+        
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>-->
+                <button type="button" id='fitting_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+        <!-- /page content -->
+
+
+        <!-- footer content -->
+        <footer>
+
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+      </div>
+    </div>
+    
+
+
+
+{% endblock%}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+    $(document).ready(function(){
+	$('#fittings_cost_Modal').modal('show');
+     
+        $('#fitting_save').click(function() {
+            $('#form').submit();        
+    
+        })
+    })
+
+
+    </script> 
+
+{% endblock%}
+
+
+  </body>
+</html>

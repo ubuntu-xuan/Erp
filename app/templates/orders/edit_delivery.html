@@ -9,18 +9,10 @@
     <style >
       .commission{font-size:14px;width:150px;}
       .table-head{font-size:14px;}
- 
-
-      
-         
- 
       .table-bordered th,  
       .table-bordered td {  
-          border: 0.5px solid #000 !important;height:25px!important;font-size:10.5pt !important; }
-
-      
-
-
+          border: 0.5px solid #000 !important;height:25px!important;font-size:10.5pt !important; 
+      }
     </style> 
 
 {% endblock %}
@@ -56,14 +48,11 @@
         
             </div>
             <div class="row" >
-                    <div class="col-md-12" >
-
-                        
+                    <div class="col-md-12" >                       
                         <br>
                         <div class="fixed-table-container" >
                             <div class="fixed-table-header" >
-                                <table class="table table-hover  " id="table" >
-                                    
+                                <table class="table table-hover  " id="table" >           
    			           <thead>
       				   <tr>
          			       <th>id</th>
@@ -71,12 +60,9 @@
          			       <th>数量</th>
         			       <th>单位</th>
          			       <th>单价¥</th>
-        			
                                        <th>备注</th>
       				   </tr>
    				   </thead>
-
-
    				<tbody>
       				<tr>
          			    <td >01</td>
@@ -134,16 +120,14 @@
       				</tr>
    				</tbody>
 
-
                                 </table>
 
-       
-  
                             </div>
                         </div>
                     </div>
             </form>
             </div>
+
         </div>
         </div>
         <!-- /page content -->
@@ -362,13 +346,7 @@
            //alert(delivery_no)
           $('#save').click(function() {
               //返回销售代表
-
-
-
                $('#form').submit();
-
-
-               
                //window.location.href = "{{ url_for('main.production_orders') }}";
                
           }) 
@@ -383,14 +361,6 @@
               window.location.href = "{{ url_for('main.delivery_orders') }}";
           })       
           
-
-
-
-
-
-
-
-
 
           function PageSetup_Null()  
 	  {  

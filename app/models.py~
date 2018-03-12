@@ -36,9 +36,9 @@ class Role(db.Model):
     default = db.Column(db.Boolean,default=False,index=True)
     permissions = db.Column(db.Integer)
     users = db.relationship('User',
-                                            secondary=registrations,
-                                            backref=db.backref('roles',lazy='dynamic'),
-                                            lazy='dynamic')
+                            secondary=registrations,
+                            backref=db.backref('roles',lazy='dynamic'),
+                            lazy='dynamic')
                                             
                                             
     def __repr__(self):
@@ -125,6 +125,369 @@ class Receipts(db.Model):
         return '<Contract %r>' % self.name
 
 
+
+
+#合同结算模型
+class ContractAccountant(db.Model):
+    __tablename__='contract_accountant'
+    order_date = db.Column(db.String(64),index=True)
+    purchase_order = db.Column(db.String(64),index=True,primary_key=True)
+    client_name = db.Column(db.String(64),index=True)
+    order_amount = db.Column(db.Float,index=True)
+    tax_type = db.Column(db.String(64),index=True)
+    tax = db.Column(db.Float,index=True)
+    tem_cost = db.Column(db.Float,index=True)
+    servers_cost = db.Column(db.Float,index=True)
+    fittings_cost = db.Column(db.Float,index=True) 
+    softwares_cost = db.Column(db.Float,index=True)
+    reimbursement = db.Column(db.Float,index=True)
+    consult_cost = db.Column(db.Float,index=True)
+    freight = db.Column(db.Float,index=True)
+    after_sales = db.Column(db.Float,index=True)
+    profit = db.Column(db.Float,index=True)
+    
+
+    server_cost = db.relationship('Server_Cost', backref='contract_accountant',passive_deletes=True)
+    fitting_cost = db.relationship('Fitting_Cost', backref='contract_accountant',passive_deletes=True)		
+    software_cost = db.relationship('Software_Cost', backref='contract_accountant',passive_deletes=True)
+
+
+    def __repr__(self):
+        return '<ContractAccountant %r>' % self.purchase_order
+
+#服务器成本模型
+class Server_Cost(db.Model):
+    __tablename__='server_cost'
+
+    id = db.Column(db.Integer,primary_key=True)
+
+    server1 = db.Column(db.String(64))
+    num1 = db.Column(db.Integer,index=True)
+    unit1 = db.Column(db.String(64))
+    unit_price1 = db.Column(db.Float,index=True)
+    remarks1 = db.Column(db.String(64))
+    
+    server2 = db.Column(db.String(64))
+    num2 = db.Column(db.Integer,index=True)
+    unit2 = db.Column(db.String(64))
+    unit_price2 = db.Column(db.Float,index=True)
+    remarks2 = db.Column(db.String(64))
+
+    server3 = db.Column(db.String(64))
+    num3 = db.Column(db.Integer,index=True)
+    unit3 = db.Column(db.String(64))
+    unit_price3 = db.Column(db.Float,index=True)
+    remarks3 = db.Column(db.String(64))
+
+    server4 = db.Column(db.String(64))
+    num4 = db.Column(db.Integer,index=True)
+    unit4 = db.Column(db.String(64))
+    unit_price4 = db.Column(db.Float,index=True)
+    remarks4 = db.Column(db.String(64))
+
+    server5 = db.Column(db.String(64))
+    num5 = db.Column(db.Integer,index=True)
+    unit5 = db.Column(db.String(64))
+    unit_price5 = db.Column(db.Float,index=True)
+    remarks5 = db.Column(db.String(64))
+
+    server6 = db.Column(db.String(64))
+    num6 = db.Column(db.Integer,index=True)
+    unit6 = db.Column(db.String(64))
+    unit_price6 = db.Column(db.Float,index=True)
+    remarks6 = db.Column(db.String(64))
+
+    server7 = db.Column(db.String(64))
+    num7 = db.Column(db.Integer,index=True)
+    unit7 = db.Column(db.String(64))
+    unit_price7 = db.Column(db.Float,index=True)
+    remarks7 = db.Column(db.String(64))
+
+    server8 = db.Column(db.String(64))
+    num8 = db.Column(db.Integer,index=True)
+    unit8 = db.Column(db.String(64))
+    unit_price8 = db.Column(db.Float,index=True)
+    remarks8 = db.Column(db.String(64))
+
+    server9 = db.Column(db.String(64))
+    num9 = db.Column(db.Integer,index=True)
+    unit9 = db.Column(db.String(64))
+    unit_price9 = db.Column(db.Float,index=True)
+    remarks9 = db.Column(db.String(64))
+
+    server10 = db.Column(db.String(64))
+    num10 = db.Column(db.Integer,index=True)
+    unit10 = db.Column(db.String(64))
+    unit_price10 = db.Column(db.Float,index=True)
+    remarks10 = db.Column(db.String(64))
+
+    server11 = db.Column(db.String(64))
+    num11 = db.Column(db.Integer,index=True)
+    unit11 = db.Column(db.String(64))
+    unit_price11 = db.Column(db.Float,index=True)
+    remarks11 = db.Column(db.String(64))
+
+    server12 = db.Column(db.String(64))
+    num12 = db.Column(db.Integer,index=True)
+    unit12 = db.Column(db.String(64))
+    unit_price12 = db.Column(db.Float,index=True)
+    remarks12 = db.Column(db.String(64))
+
+    purchase_order = db.Column(db.String(64),db.ForeignKey('contract_accountant.purchase_order',ondelete='CASCADE',onupdate='CASCADE'))
+
+
+    def __repr__(self):
+        return '<Server_Cost %r>' % self.id
+
+
+# 配件成本模型
+class Fitting_Cost(db.Model):
+    __tablename__='fitting_cost'
+
+    id = db.Column(db.Integer,primary_key=True)
+
+    fitting1 = db.Column(db.String(64))
+    num1 = db.Column(db.Integer,index=True)
+    unit1 = db.Column(db.String(64))
+    unit_price1 = db.Column(db.Float,index=True)
+    remarks1 = db.Column(db.String(64))
+    
+    fitting2 = db.Column(db.String(64))
+    num2 = db.Column(db.Integer,index=True)
+    unit2 = db.Column(db.String(64))
+    unit_price2 = db.Column(db.Float,index=True)
+    remarks2 = db.Column(db.String(64))
+
+    fitting3 = db.Column(db.String(64))
+    num3 = db.Column(db.Integer,index=True)
+    unit3 = db.Column(db.String(64))
+    unit_price3 = db.Column(db.Float,index=True)
+    remarks3 = db.Column(db.String(64))
+
+    fitting4 = db.Column(db.String(64))
+    num4 = db.Column(db.Integer,index=True)
+    unit4 = db.Column(db.String(64))
+    unit_price4 = db.Column(db.Float,index=True)
+    remarks4 = db.Column(db.String(64))
+
+    fitting5 = db.Column(db.String(64))
+    num5 = db.Column(db.Integer,index=True)
+    unit5 = db.Column(db.String(64))
+    unit_price5 = db.Column(db.Float,index=True)
+    remarks5 = db.Column(db.String(64))
+
+    fitting6 = db.Column(db.String(64))
+    num6 = db.Column(db.Integer,index=True)
+    unit6 = db.Column(db.String(64))
+    unit_price6 = db.Column(db.Float,index=True)
+    remarks6 = db.Column(db.String(64))
+
+    fitting7 = db.Column(db.String(64))
+    num7 = db.Column(db.Integer,index=True)
+    unit7 = db.Column(db.String(64))
+    unit_price7 = db.Column(db.Float,index=True)
+    remarks7 = db.Column(db.String(64))
+
+    fitting8 = db.Column(db.String(64))
+    num8 = db.Column(db.Integer,index=True)
+    unit8 = db.Column(db.String(64))
+    unit_price8 = db.Column(db.Float,index=True)
+    remarks8 = db.Column(db.String(64))
+
+    fitting9 = db.Column(db.String(64))
+    num9 = db.Column(db.Integer,index=True)
+    unit9 = db.Column(db.String(64))
+    unit_price9 = db.Column(db.Float,index=True)
+    remarks9 = db.Column(db.String(64))
+
+    fitting10 = db.Column(db.String(64))
+    num10 = db.Column(db.Integer,index=True)
+    unit10 = db.Column(db.String(64))
+    unit_price10 = db.Column(db.Float,index=True)
+    remarks10 = db.Column(db.String(64))
+
+    fitting11 = db.Column(db.String(64))
+    num11 = db.Column(db.Integer,index=True)
+    unit11 = db.Column(db.String(64))
+    unit_price11 = db.Column(db.Float,index=True)
+    remarks11 = db.Column(db.String(64))
+
+    fitting12 = db.Column(db.String(64))
+    num12 = db.Column(db.Integer,index=True)
+    unit12 = db.Column(db.String(64))
+    unit_price12 = db.Column(db.Float,index=True)
+    remarks12 = db.Column(db.String(64))
+
+    purchase_order = db.Column(db.String(64),db.ForeignKey('contract_accountant.purchase_order',ondelete='CASCADE'))
+
+
+    def __repr__(self):
+        return '<Fitting_Cost %r>' % self.id
+
+
+
+# 软件成本模型
+class Software_Cost(db.Model):
+    __tablename__='software_cost'
+
+    id = db.Column(db.Integer,primary_key=True)
+
+    software1 = db.Column(db.String(64))
+    num1 = db.Column(db.Integer,index=True)
+    unit1 = db.Column(db.String(64))
+    unit_price1 = db.Column(db.Float,index=True)
+    remarks1 = db.Column(db.String(64))
+    
+    software2 = db.Column(db.String(64))
+    num2 = db.Column(db.Integer,index=True)
+    unit2 = db.Column(db.String(64))
+    unit_price2 = db.Column(db.Float,index=True)
+    remarks2 = db.Column(db.String(64))
+
+    software3 = db.Column(db.String(64))
+    num3 = db.Column(db.Integer,index=True)
+    unit3 = db.Column(db.String(64))
+    unit_price3 = db.Column(db.Float,index=True)
+    remarks3 = db.Column(db.String(64))
+
+    software4 = db.Column(db.String(64))
+    num4 = db.Column(db.Integer,index=True)
+    unit4 = db.Column(db.String(64))
+    unit_price4 = db.Column(db.Float,index=True)
+    remarks4 = db.Column(db.String(64))
+
+    software5 = db.Column(db.String(64))
+    num5 = db.Column(db.Integer,index=True)
+    unit5 = db.Column(db.String(64))
+    unit_price5 = db.Column(db.Float,index=True)
+    remarks5 = db.Column(db.String(64))
+
+    software6 = db.Column(db.String(64))
+    num6 = db.Column(db.Integer,index=True)
+    unit6 = db.Column(db.String(64))
+    unit_price6 = db.Column(db.Float,index=True)
+    remarks6 = db.Column(db.String(64))
+
+    software7 = db.Column(db.String(64))
+    num7 = db.Column(db.Integer,index=True)
+    unit7 = db.Column(db.String(64))
+    unit_price7 = db.Column(db.Float,index=True)
+    remarks7 = db.Column(db.String(64))
+
+    software8 = db.Column(db.String(64))
+    num8 = db.Column(db.Integer,index=True)
+    unit8 = db.Column(db.String(64))
+    unit_price8 = db.Column(db.Float,index=True)
+    remarks8 = db.Column(db.String(64))
+
+    software9 = db.Column(db.String(64))
+    num9 = db.Column(db.Integer,index=True)
+    unit9 = db.Column(db.String(64))
+    unit_price9 = db.Column(db.Float,index=True)
+    remarks9 = db.Column(db.String(64))
+
+    software10 = db.Column(db.String(64))
+    num10 = db.Column(db.Integer,index=True)
+    unit10 = db.Column(db.String(64))
+    unit_price10 = db.Column(db.Float,index=True)
+    remarks10 = db.Column(db.String(64))
+
+    software11 = db.Column(db.String(64))
+    num11 = db.Column(db.Integer,index=True)
+    unit11 = db.Column(db.String(64))
+    unit_price11 = db.Column(db.Float,index=True)
+    remarks11 = db.Column(db.String(64))
+
+    software12 = db.Column(db.String(64))
+    num12 = db.Column(db.Integer,index=True)
+    unit12 = db.Column(db.String(64))
+    unit_price12 = db.Column(db.Float,index=True)
+    remarks12 = db.Column(db.String(64))
+
+    purchase_order = db.Column(db.String(64),db.ForeignKey('contract_accountant.purchase_order',ondelete='CASCADE'))
+
+
+    def __repr__(self):
+        return '<Software_Cost %r>' % self.id
+
+
+# 报销单模型
+class Reimbursement(db.Model):
+    __tablename__='reimbursement'
+
+    number = db.Column(db.Integer,primary_key=True)
+    date = db.Column(db.String(64),index=True)
+    purchase_order = db.Column(db.String(64),index=True)
+    sum_amount = db.Column(db.Float)
+    remark = db.Column(db.String(64))
+    loan = db.Column(db.Float)
+    residue = db.Column(db.Float)
+    rei_name = db.Column(db.String(64))
+    payee = db.Column(db.String(64))
+    purpose_all = db.Column(db.String(128))
+
+    purpose1 = db.Column(db.String(64))
+    amount1 = db.Column(db.Float)
+
+    purpose2 = db.Column(db.String(64))
+    amount2 = db.Column(db.Float)
+
+    purpose3 = db.Column(db.String(64))
+    amount3 = db.Column(db.Float)
+
+    purpose4 = db.Column(db.String(64))
+    amount4 = db.Column(db.Float)
+
+
+
+    def __repr__(self):
+        return '<Reimbursement %r>' % self.number
+
+#付款申请单模型
+class PayRequest(db.Model):
+    __tablename__='payrequest'
+
+    number = db.Column(db.String(64),primary_key=True)
+    date = db.Column(db.String(64),index=True)
+    project_name = db.Column(db.String(64),index=True)
+    
+    receivable_company = db.Column(db.String(64),index=True)
+    abstract = db.Column(db.String(64),index=True)
+    purchase_order = db.Column(db.String(64),index=True)
+    project_amount = db.Column(db.Float)
+    sum_payed = db.Column(db.Float) 
+    payed = db.Column(db.Float)
+    pay_way = db.Column(db.String(64))
+    remark = db.Column(db.String(64))
+    operator = db.Column(db.String(64))
+
+    purpose_all = db.Column(db.String(128))
+
+    purpose1 = db.Column(db.String(64))
+    amount1 = db.Column(db.Float)
+
+    purpose2 = db.Column(db.String(64))
+    amount2 = db.Column(db.Float)
+
+    purpose3 = db.Column(db.String(64))
+    amount3 = db.Column(db.Float)
+
+    purpose4 = db.Column(db.String(64))
+    amount4 = db.Column(db.Float)
+
+    deposit_bank = db.Column(db.String(64))
+    deposit_account = db.Column(db.String(64))
+    tax_number = db.Column(db.String(64))
+
+
+
+
+    def __repr__(self):
+        return '<PayRequest %r>' % self.number
+
+
+
+
 #客户信息
 class Clients(db.Model):
     __tablename__='clients'
@@ -144,10 +507,11 @@ class Clients(db.Model):
     tract = db.Column(db.Text)
     status = db.Column(db.String(10),index=True)
     submitter = db.Column(db.String(10))
-    fk_clients_traces = db.relationship('Clients_Traces', backref='clients')
+
+    fk_clients_traces = db.relationship('Clients_Traces', backref='clients',passive_deletes=True)
 
     def __repr__(self):
-        return '<Clinets %r>' % self.company_name
+        return '<Clinets %r>' % self.id
 
 
 #客户信息跟踪
@@ -157,11 +521,10 @@ class Clients_Traces(db.Model):
     situation = db.Column(db.String(200))
     trace_date = db.Column(db.String(64))
     remarks = db.Column(db.String(64))
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'))
-
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id',ondelete='CASCADE',onupdate='CASCADE'))
 
     def __repr__(self):
-        return '<Clinets %r>' % self.id
+        return '<Clients_Traces %r>' % self.id
 
 
 
@@ -242,6 +605,7 @@ class Orders(db.Model):
     __tablename__='orders'
     id = db.Column(db.Integer,primary_key=True)
     company_name = db.Column(db.String(64),index=True)
+    order_date = db.Column(db.String(64),index=True)
     order_number = db.Column(db.String(64),index=True)
     tax_type = db.Column(db.String(64),index=True)
     adress = db.Column(db.String(64),index=True)
@@ -250,6 +614,10 @@ class Orders(db.Model):
     saler = db.Column(db.String(64),index=True)
     saler_tel = db.Column(db.String(64),index=True)
     apartment = db.Column(db.String(64),index=True)
+    product_type = db.Column(db.String(64),index=True)
+    product_price = db.Column(db.Float,index=True)
+    product_num = db.Column(db.Integer,index=True)
+    order_amount = db.Column(db.Float,index=True)
 
     def __repr__(self):
         return '<orders %r>' % self.company_name
@@ -328,13 +696,16 @@ class Price_Storage(db.Model):
     
     id = db.Column(db.Integer,primary_key=True)
     requisition_number = db.Column(db.String(64),index=True)
-    price_C100 = db.Column(db.String(64),index=True)   
+    price_C100 = db.Column(db.String(64),index=True) 
+    price_AX500 = db.Column(db.String(64),index=True)  
     price_AX700 = db.Column(db.String(64),index=True)
+    price_AX700_multi = db.Column(db.String(64),index=True)
     price_E300 = db.Column(db.String(64),index=True)
     price_T300 = db.Column(db.String(64),index=True)  
     price_T600 = db.Column(db.String(64),index=True)
     price_AX730 = db.Column(db.String(64),index=True)          
     price_AX800 = db.Column(db.String(64),index=True)
+    price_N600NW = db.Column(db.String(64),index=True)
     #price_model_others = db.Column(db.String(64),index=True)
     
     price_1GB = db.Column(db.String(64),index=True)
@@ -424,10 +795,24 @@ class Payment(db.Model):
     cost = db.Column(db.String(64),index=True)
     profit = db.Column(db.String(64),index=True)
     status = db.Column(db.String(64),index=True)  
+    date = db.Column(db.String(64),index=True)
+    type = db.Column(db.String(64),index=True)
+    price = db.Column(db.Float,index=True)
+    num = db.Column(db.Integer,index=True)
+    tem_cost = db.Column(db.Float,index=True)
+    server_cost = db.Column(db.Float,index=True)
+    consult_cost = db.Column(db.Float,index=True)
+    after_sales = db.Column(db.Float,index=True)
+    tax_type = db.Column(db.String(64),index=True)
 
 
     def __repr__(self):
         return '<Payment %r>' % self.no
+
+
+
+
+
 
 
 #采购清单模型
@@ -462,4 +847,8 @@ class Performance_Related(db.Model):
 
     def __repr__(self):
         return '<Performance_Related %r>' % self.id
+
+
+
+
 

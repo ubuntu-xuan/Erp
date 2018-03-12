@@ -139,6 +139,25 @@
                 });
                 window.location.href = "{{ url_for('main.delivery_orders') }}";    
               },
+              'click .create_contract_account': function (e, value, row, index) {
+               $.ajax({
+                    type: "post",
+                    url: "/orders_electric",
+                    async: false,
+                    data:{
+                        'create_contract_account':row.order_number,
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+			   
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+                window.open("{{ url_for('main.contract_accountant') }}");    
+              }
 
            
         };
@@ -179,8 +198,23 @@
             },{
                 field: 'id',
                 title: 'ID',
-                align: 'left',
+                align: 'center',
                 sortable: true,
+
+            },{
+                field: 'order_date',
+                title: '日期',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '日期',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                },
 
             },{
                 field: 'company_name',
@@ -200,9 +234,23 @@
                 field: 'order_number',
                 title: '合同编号',
                 align: 'left',
-                editable: {
+             editable: {
                     type: 'text',
                     title: '合同编号',
+                    validate: function (value) {
+                        value = $.trim(value);
+                        if (!value) {
+                            return 'This field is required';
+                        }
+                    },
+                }
+            },{
+                field: 'order_amount',
+                title: '合同金额',
+                align: 'left',
+                editable: {
+                    type: 'text',
+                    title: '合同金额',
                     validate: function (value) {
                         value = $.trim(value);
                         if (!value) {
@@ -217,7 +265,7 @@
                 
                 editable: {
                     type: 'text',
-                    title: '税种',
+                    title: '税种(增值税/不含税)',
                     emptytext:'-', 
                 }
             },{
@@ -227,7 +275,7 @@
                 editable: {
                     type: 'text',
                     title: '收货地址',
-                    validate: function (value) {
+                validate: function (value) {
                         value = $.trim(value);
                         if (!value) {
                             return 'This field is required';
@@ -248,7 +296,7 @@
                             return 'This field is required';
                         }
                     },
-                }
+             }
 
             },{
                 field: 'tel',
@@ -269,7 +317,7 @@
                 title: '销售人',
                 align: 'left',
                 editable: {
-                    type: 'text',
+                 type: 'text',
                     title: '销售人',
                     validate: function (value) {
                         value = $.trim(value);
@@ -290,22 +338,12 @@
                         if (!value) {
                             return 'This field is required';
                         }
-                    },
+                  },
                 }
             },{
                 field: 'apartment',
                 title: '部门',
-                align: 'left',
-                editable: {
-                    type: 'text',
-                    title: '部门',
-                    validate: function (value) {
-                        value = $.trim(value);
-                        if (!value) {
-                            return 'This field is required';
-                        }
-                    },
-                }
+                align: 'center',
             }, {
                 field: 'operate',
                 title: '操作',
@@ -315,7 +353,9 @@
             }],
 
 
-            queryParamsType : "undefined",
+
+
+	    queryParamsType : "undefined",
 
             onEditableSave: function (field, row, oldValue, $el) {
                 $.ajax({
@@ -343,7 +383,7 @@
 
         function operateFormatter(value, row, index) {
              //var name = getNameSelections();
-                return [
+             return [
 
             '<a class="check" href="javascript:;"  data-gallery  title="查看合同" >',
 {#            '<i class="glyphicon glyphicon-remove"></i>',#}'查看',
@@ -355,8 +395,13 @@
 {#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成送货单',
 
             '</a>',' ',
+            '<a class="create_contract_account" href="javascript:;" title="添加到订单结算表">',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成结算表',
+            '</a>',' ',
 
            ].join('');
+
+
         }
 
       }

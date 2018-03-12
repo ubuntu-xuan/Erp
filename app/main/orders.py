@@ -7,7 +7,7 @@ from flask.ext.login import login_required, current_user, login_user, logout_use
 import json, MySQLdb, sys
 from  manage import db  # 不添加这个会不能更新数据库
 from ..models import Orders, Production_Orders, Delivery_Orders, Delivery_Productions, Payment, Semi_finished, \
-    End_product, Fittings, Fittings_Outputs, Price_Storage, Contract
+    End_product, Fittings, Fittings_Outputs, Price_Storage, Contract,ContractAccountant
 
 import json
 import time
@@ -253,7 +253,7 @@ def orders():
         if old_Value is not None:
             print "更新数据"
             Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number.strip(),"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 
@@ -272,6 +272,41 @@ def orders():
             if delivery is not None:
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
                     {"client_name": company_name, "saler": saler})
+
+            '''当orders修改时自动修改合同结算中的信息'''
+	    print('orders修改自动修改合同结算中 合同金额 税金 利润')
+            contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
+            if contract_accountant is not None:
+                #更新合同金额
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"order_amount": order_amount})
+	        #若为增值税，更新税金
+	        tax_type = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax_type
+		if tax_type == "增值税":
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"tax": float(order_amount)*0.1})
+	        db.session.commit()
+
+		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+	        order_amount = ContractAccountant.query.filter_by(purchase_order=order_number).first().order_amount
+		tax = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax
+		tem_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().tem_cost	
+		servers_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().servers_cost
+	 	fittings_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().fittings_cost
+		softwares_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().softwares_cost
+		reimbursement = ContractAccountant.query.filter_by(purchase_order=order_number).first().reimbursement
+		consult_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().consult_cost
+		freight = ContractAccountant.query.filter_by(purchase_order=order_number).first().freight
+		after_sales = ContractAccountant.query.filter_by(purchase_order=order_number).first().after_sales
+
+		print('计算 利润')
+		print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
+		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
+	 	#print(profit)
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"profit":profit })
+
+	
 
             db.session.commit()
 
@@ -314,7 +349,6 @@ def orders():
             # requisition_number = get_year + get_month + max_number
             requisition_number = long(max(get_data)) + 1
 
-        print '++++++++++------+', requisition_number
 
         # 获取orders里的信息
         company_name = Orders.query.filter_by(order_number=create_production_orders).first().company_name
@@ -351,7 +385,6 @@ def orders():
 
         # 获取要生成的送货单的单号
         delivery_order = request.form.get('create_delivery_orders', '')
-        # print '00000000000000',delivery_order
 
         '''生成送货单编号'''
         # 送货单数据表中的个数
@@ -364,12 +397,10 @@ def orders():
 
         cursor.execute("SELECT no from delivery_orders")
         delivery_data = cursor.fetchall()
-        # cursor.close()
-        # database.close() 
+
 
         get_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
-        print '个数:', len(delivery_data)
 
         if len(delivery_data) == 0:
             '''给送货单号赋值'''
@@ -380,7 +411,6 @@ def orders():
             get_data = []
             for i, w in enumerate(delivery_data):
                 get_data.append(w[0])
-                #print 'max!!!!!!!!', long(max(get_data))
             no = long(max(get_data)) + 1
 
         # 获取系统时间 
@@ -432,6 +462,94 @@ def orders():
         cursor.close()
         database.commit()
         database.close()
+
+
+
+    '''生成合同结算单'''
+    if request.form.get('create_contract_account', '') != '':
+
+	try:
+            '''warning:这里需要设置为环境获取'''
+            database = MySQLdb.connect("localhost", "root", "uroot012", "erp_development", charset='utf8')
+            cursor = database.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+        get_order = request.form.get('create_contract_account', '')
+
+	'''
+	    获取日期 客户名称 合同编号 税种 合同金额 终端成本 
+	'''
+
+	cursor.execute("SELECT order_date,company_name,tax_type,order_amount from orders where order_number='%s' "%(get_order))
+
+	order_mes = cursor.fetchall()
+
+	cursor.execute("SELECT all_const from production_orders where order_number='%s'"%(get_order))
+	tem_cost = cursor.fetchall()
+
+	tem_cost_sum = 0.0
+	for cost in tem_cost:
+	    tem_cost_sum += float(cost[0])
+
+	
+	#生成合同结算表 
+	cursor.execute("SELECT client_name from contract_accountant where purchase_order='%s'"%(get_order))
+	if_order = cursor.fetchall()
+	print('if_order',if_order)
+
+	if any(if_order):
+	    print('存在,更新')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    print('if_taxif_taxif_tax',if_tax)
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+	   
+	    cursor.execute("UPDATE contract_accountant SET order_date='%s',client_name='%s',purchase_order='%s',tax_type='%s',order_amount='%s',tax='%s',tem_cost='%s' where purchase_order='%s' "%(order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,get_order))
+
+
+
+	else:
+	    print('不存在,新建')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    if_tax = cursor.fetchall()
+
+	    tax_value = order_mes[0][3]
+
+	   
+
+	    print('if_taxif_taxif_tax',if_tax)
+
+
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+
+
+
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 	    print('profitprofitprofitprofit',profit)
+	    print('order_mes[0][3]')
+	    print(order_mes[0][3],float(tax_value)*0.1,tem_cost_sum)
+
+
+
+
+
+
+
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
+	
+	cursor.close()
+      	database.commit()
+	database.close()
+	 
+
 
     '''删除记录'''
 
@@ -508,15 +626,13 @@ def orders():
 
     if request.method == 'POST':
         data = request.form.get('data', '')
-        # print "++++++--++",json.loads(data)["number"]
+
         if data != '':
             # 根据返回的number查找contract中的文件名
             if Contract.query.filter_by(number=json.loads(data)["number"]).first() is not None:
                 filename = Contract.query.filter_by(number=json.loads(data)["number"]).first().name
             else:
                 filename = ''
-
-            print '返回json ', filename
 
             return simplejson.dumps({"filename": filename})
         else:
@@ -589,8 +705,6 @@ def orders_integrate():
     apartment = request.form.get('row[apartment]', '')
     oldValue = request.form.get('oldValue', '')
 
-
-
     # 获取要生成的通知单的单号
     create_production_orders = request.form.get('create_production_orders', '')
     # 要生成的送货列表单号
@@ -631,7 +745,7 @@ def orders_integrate():
         if old_Value is not None:
             print "更新数据"
  	    Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number.strip(),"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 	
@@ -649,6 +763,14 @@ def orders_integrate():
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
                     {"client_name": company_name, "saler": saler})
 
+            '''当orders修改时自动修改合同结算中的信息'''
+	    print('orders修改自动修改合同结算信息')
+            contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
+            if contract_accountant is not None:
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"order_amount": order_amount})
+
+
             db.session.commit()
 
     '''生成生产通知单'''
@@ -657,7 +779,6 @@ def orders_integrate():
         list_production = []
         for i in db.session.query(Production_Orders.order_number).all():
             list_production.append(i[0])
-        print '个数:', len(list_production)
 
         get_year = time.strftime('%Y', time.localtime(time.time()))
         get_month = time.strftime('%m', time.localtime(time.time()))
@@ -740,8 +861,6 @@ def orders_integrate():
 
         cursor.execute("SELECT no from delivery_orders")
         delivery_data = cursor.fetchall()
-        # cursor.close()
-        # database.close() 
 
         get_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
@@ -810,9 +929,70 @@ def orders_integrate():
             cursor.execute("UPDATE delivery_%s SET client_name='%s',client_adress='%s',saler='%s' " % (
                 delivery_no, company_name, client_adress, saler_name))
 
-        cursor.close()
-        database.commit()
-        database.close()
+    '''生成合同结算单'''
+    if request.form.get('create_contract_account', '') != '':
+
+	try:
+            '''warning:这里需要设置为环境获取'''
+            database = MySQLdb.connect("localhost", "root", "uroot012", "erp_development", charset='utf8')
+            cursor = database.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+        get_order = request.form.get('create_contract_account', '')
+
+	'''
+	    获取日期 客户名称 合同编号 税种 合同金额 终端成本 
+	'''
+
+	cursor.execute("SELECT order_date,company_name,tax_type,order_amount from orders where order_number='%s' "%(get_order))
+
+	order_mes = cursor.fetchall()
+
+	cursor.execute("SELECT all_const from production_orders where order_number='%s'"%(get_order))
+	tem_cost = cursor.fetchall()
+
+	tem_cost_sum = 0.0
+	for cost in tem_cost:
+	    tem_cost_sum += float(cost[0])
+
+	
+	#生成合同结算表 
+	cursor.execute("SELECT client_name from contract_accountant where purchase_order='%s'"%(get_order))
+	if_order = cursor.fetchall()
+	print('if_order',if_order)
+
+	if any(if_order):
+	    print('存在,更新')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    if_tax = cursor.fetchall()
+
+	    tax_value = order_mes[0][3]
+
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+	    cursor.execute("UPDATE contract_accountant SET order_date='%s',client_name='%s',purchase_order='%s',tax_type='%s',order_amount='%s',tax='%s',tem_cost='%s' where purchase_order='%s' "%(order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,get_order))
+
+
+
+	else:
+	    print('不存在,新建')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    if_tax = cursor.fetchall()
+
+	    tax_value = order_mes[0][3]
+
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	
+	cursor.close()
+      	database.commit()
+	database.close()
 
     '''删除记录'''
 
@@ -894,8 +1074,6 @@ def orders_integrate():
                 filename = Contract.query.filter_by(number=json.loads(data)["number"]).first().name
             else:
                 filename = ''
-
-            print '返回json ', filename
 
             return simplejson.dumps({"filename": filename})
         else:
@@ -1009,7 +1187,7 @@ def orders_electric():
         if old_Value is not None:
             print "更新数据"
 	    Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number.strip(),"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})	
 
@@ -1026,6 +1204,13 @@ def orders_electric():
             if delivery is not None:
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
                     {"client_name": company_name, "saler": saler})
+
+            '''当orders修改时自动修改合同结算中的信息'''
+	    print('orders修改自动修改合同结算信息')
+            contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
+            if contract_accountant is not None:
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"order_amount": order_amount})
 
             db.session.commit()
 
@@ -1188,9 +1373,71 @@ def orders_electric():
             cursor.execute("UPDATE delivery_%s SET client_name='%s',client_adress='%s',saler='%s' " % (
                 delivery_no, company_name, client_adress, saler_name))
 
-        cursor.close()
-        database.commit()
-        database.close()
+    '''生成合同结算单'''
+    if request.form.get('create_contract_account', '') != '':
+
+	try:
+            '''warning:这里需要设置为环境获取'''
+            database = MySQLdb.connect("localhost", "root", "uroot012", "erp_development", charset='utf8')
+            cursor = database.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+        get_order = request.form.get('create_contract_account', '')
+
+	'''
+	    获取日期 客户名称 合同编号 税种 合同金额 终端成本 
+	'''
+
+	cursor.execute("SELECT order_date,company_name,tax_type,order_amount from orders where order_number='%s' "%(get_order))
+
+	order_mes = cursor.fetchall()
+
+	cursor.execute("SELECT all_const from production_orders where order_number='%s'"%(get_order))
+	tem_cost = cursor.fetchall()
+
+	tem_cost_sum = 0.0
+	for cost in tem_cost:
+	    tem_cost_sum += float(cost[0])
+
+	
+	#生成合同结算表 
+	cursor.execute("SELECT client_name from contract_accountant where purchase_order='%s'"%(get_order))
+	if_order = cursor.fetchall()
+	print('if_order',if_order)
+
+	if any(if_order):
+	    print('存在,更新')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+	
+
+
+	    cursor.execute("UPDATE contract_accountant SET order_date='%s',client_name='%s',purchase_order='%s',tax_type='%s',order_amount='%s',tax='%s',tem_cost='%s' where purchase_order='%s' "%(order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,get_order))
+
+
+
+	else:
+	    print('不存在,新建')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	
+	cursor.close()
+      	database.commit()
+	database.close()
 
     '''删除记录'''
 
@@ -1327,7 +1574,7 @@ def orders_electric_return_json():
     return json.dumps(jsonData)
 
 
-# 商务部 订单
+#商务部 订单
 @main.route('/orders_commerce', methods=['GET', 'POST'])
 @login_required
 def orders_commerce():
@@ -1392,7 +1639,7 @@ def orders_commerce():
         if old_Value is not None:
             print "更新数据"
 	    Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number.strip(),"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 	
@@ -1409,6 +1656,13 @@ def orders_commerce():
             if delivery is not None:
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
                     {"client_name": company_name, "saler": saler})
+
+            '''当orders修改时自动修改合同结算中的信息'''
+	    print('orders修改自动修改合同结算信息')
+            contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
+            if contract_accountant is not None:
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"order_amount": order_amount})
 
             db.session.commit()
 
@@ -1571,9 +1825,71 @@ def orders_commerce():
             cursor.execute("UPDATE delivery_%s SET client_name='%s',client_adress='%s',saler='%s' " % (
                 delivery_no, company_name, client_adress, saler_name))
 
-        cursor.close()
-        database.commit()
-        database.close()
+    '''生成合同结算单'''
+    if request.form.get('create_contract_account', '') != '':
+
+	try:
+            '''warning:这里需要设置为环境获取'''
+            database = MySQLdb.connect("localhost", "root", "uroot012", "erp_development", charset='utf8')
+            cursor = database.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+        get_order = request.form.get('create_contract_account', '')
+
+	'''
+	    获取日期 客户名称 合同编号 税种 合同金额 终端成本 
+	'''
+
+	cursor.execute("SELECT order_date,company_name,tax_type,order_amount from orders where order_number='%s' "%(get_order))
+
+	order_mes = cursor.fetchall()
+
+	cursor.execute("SELECT all_const from production_orders where order_number='%s'"%(get_order))
+	tem_cost = cursor.fetchall()
+
+	tem_cost_sum = 0.0
+	for cost in tem_cost:
+	    tem_cost_sum += float(cost[0])
+
+	
+	#生成合同结算表 
+	cursor.execute("SELECT client_name from contract_accountant where purchase_order='%s'"%(get_order))
+	if_order = cursor.fetchall()
+	print('if_order',if_order)
+
+	if any(if_order):
+	    print('存在,更新')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+	
+
+
+	    cursor.execute("UPDATE contract_accountant SET order_date='%s',client_name='%s',purchase_order='%s',tax_type='%s',order_amount='%s',tax='%s',tem_cost='%s' where purchase_order='%s' "%(order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,get_order))
+
+
+
+	else:
+	    print('不存在,新建')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	
+	cursor.close()
+      	database.commit()
+	database.close()
 
     '''删除记录'''
 
@@ -1777,7 +2093,7 @@ def orders_others():
         if old_Value is not None:
             print "更新数据"
 	    Orders.query.filter_by(id=id_concect[int(id)]).update(
-                {"order_date":order_date,"company_name": company_name, "order_number": order_number,"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
+                {"order_date":order_date,"company_name": company_name, "order_number": order_number.strip(),"product_type":product_type,"product_price":product_price,"product_num":product_num,"order_amount":order_amount,"tax_type": tax_type,
                  "adress": adress, "client_name": client_name, "tel": tel, "saler": saler, "saler_tel": saler_tel,
                  "apartment": apartment})
 
@@ -1794,6 +2110,14 @@ def orders_others():
             if delivery is not None:
                 Delivery_Orders.query.filter_by(purchase_order=order_number).update(
                     {"client_name": company_name, "saler": saler})
+
+            '''当orders修改时自动修改合同结算中的信息'''
+	    print('orders修改自动修改合同结算信息')
+            contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
+            if contract_accountant is not None:
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"order_amount": order_amount})
+
             db.session.commit()
 
     '''生成生产通知单'''
@@ -1955,10 +2279,71 @@ def orders_others():
             cursor.execute("UPDATE delivery_%s SET client_name='%s',client_adress='%s',saler='%s' " % (
                 delivery_no, company_name, client_adress, saler_name))
 
-        cursor.close()
-        database.commit()
-        database.close()
+    '''生成合同结算单'''
+    if request.form.get('create_contract_account', '') != '':
 
+	try:
+            '''warning:这里需要设置为环境获取'''
+            database = MySQLdb.connect("localhost", "root", "uroot012", "erp_development", charset='utf8')
+            cursor = database.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+        get_order = request.form.get('create_contract_account', '')
+
+	'''
+	    获取日期 客户名称 合同编号 税种 合同金额 终端成本 
+	'''
+
+	cursor.execute("SELECT order_date,company_name,tax_type,order_amount from orders where order_number='%s' "%(get_order))
+
+	order_mes = cursor.fetchall()
+
+	cursor.execute("SELECT all_const from production_orders where order_number='%s'"%(get_order))
+	tem_cost = cursor.fetchall()
+
+	tem_cost_sum = 0.0
+	for cost in tem_cost:
+	    tem_cost_sum += float(cost[0])
+
+	
+	#生成合同结算表 
+	cursor.execute("SELECT client_name from contract_accountant where purchase_order='%s'"%(get_order))
+	if_order = cursor.fetchall()
+	print('if_order',if_order)
+
+	if any(if_order):
+	    print('存在,更新')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+	
+
+
+	    cursor.execute("UPDATE contract_accountant SET order_date='%s',client_name='%s',purchase_order='%s',tax_type='%s',order_amount='%s',tax='%s',tem_cost='%s' where purchase_order='%s' "%(order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,get_order))
+
+
+
+	else:
+	    print('不存在,新建')
+	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
+
+	    tax_value = order_mes[0][3]
+
+	    if_tax = cursor.fetchall()
+	    if if_tax[0][0] == "不含税":
+	 	tax_value = 0.0
+
+
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	
+	cursor.close()
+      	database.commit()
+	database.close()
     '''删除记录'''
 
     def reset_delete(id, remove_order):
@@ -1978,7 +2363,7 @@ def orders_others():
 
 
         # 删除对应的送货单
-        cursor.execute("DROP TABLE delivery_%s" % (remove_order))
+        #cursor.execute("DROP TABLE delivery_%s" % (remove_order))
 
         cursor.close()
         database.commit()

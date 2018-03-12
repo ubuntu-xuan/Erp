@@ -129,8 +129,6 @@
         </div>
         
         <!-- /page content -->
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default"
@@ -143,10 +141,6 @@
 
           </div><!-- /.modal-content -->
 	</div><!-- /.modal -->
-
-
-
-
 
 
 {% endblock %}
@@ -208,12 +202,7 @@
                     complete: function () {
                     }
                 });
-            },
-
-
-
-
-         
+            },      
          };
 
         //先销毁表格
@@ -457,7 +446,14 @@
           $table.on('page-change.bs.table', function () {
             $('#table').bootstrapTable('scrollTo', '10px');
           });
-    
+ 
+          $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
+		if(field=="saler"){
+		    alert(row.id);		
+		}            
+		
+          });
+   
            
           $table.on('check.bs.table uncheck.bs.table ' +
                 'check-all.bs.table uncheck-all.bs.table', function () {
@@ -545,8 +541,7 @@
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
-
-                            
+         
                         }
                     },
                     complete: function () {
@@ -574,12 +569,10 @@
                        "service_textarea":service_textarea,
                        "service_id": service_id,
                        "service_company":service_company
-
                     },
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
-
                             
                         }
                     },
@@ -591,17 +584,8 @@
 
                //$('#form').submit();
               
-               //window.location.href = "{{ url_for('main.production_orders') }}";
-               
+               //window.location.href = "{{ url_for('main.production_orders') }}";  
           }) 
-
-
-
-
-
-   
- 
-
       });
 
     </script> 
