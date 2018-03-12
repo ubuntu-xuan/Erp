@@ -6,8 +6,8 @@
 
 
 .idea/
-migrations/
-data/
-venv/
-backup_sql/
+migrations
+data
+venv
+backup_sql
 
