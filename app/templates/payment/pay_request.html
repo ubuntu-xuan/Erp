@@ -312,7 +312,7 @@
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
-                            alert('提交数据成功');
+
                         }
                     },
 {#                    error: function () {#}
@@ -366,10 +366,6 @@
 
 	 $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
 	   if(field=="purpose_all"){
-	     if(row.purchase_order=="edit"){
-	    	alert("请先填写好合同编号");
-	     }
-	     else{
 	        $('#abstracts_Modal').modal('toggle');
                 var data = {
                    get_number_data:JSON.stringify({"number":row.number}) 
@@ -401,7 +397,7 @@
                     }
                 });
 	     }	
-	   }  
+	   
           });
 	 
 
