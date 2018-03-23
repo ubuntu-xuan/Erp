@@ -64,27 +64,6 @@ def received_payment():
 	print('pro_mess',no,pro_mess[0])    
 
 
-
-    #for i in order_data:
-    #cursor.execute("SELECT num from payment ORDER BY id")
-
-    #nums = cursor.fetchall()
-
-    #for pay in payment:
-	#for num in nums:
-	    #print(pay,num)
-
-
-
-
-
-    #for date in order_date:
-
-
-    #cursor.execute("UPDATE payment SET tem_cost='%s' where purchase_order='%s'"%(date[0],i[0]))
-    #print('update')
-    #conn.commit()
-
     if request.method == 'POST':
         #修改数据
         id = request.form.get('row[id]', '')
@@ -2886,10 +2865,6 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
             amount2 = request.form['amount2']
             if amount2 == ' ':
                 amount2 = 0.0
-
-	print('jeeeeeeeeeeeeeeeeeeeeee')
-	print(amount2)
-
 
         if "purpose3" in request.form:
             purpose3 = request.form['purpose3']

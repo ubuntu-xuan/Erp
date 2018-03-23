@@ -217,7 +217,7 @@
 
     <script>
     $(document).ready(function(){
-	$('#fittings_cost_Modal').modal('show');
+	$('#fittings_cost_Modal').modal({backdrop: 'static', show: 'show'});
      
         $('#fitting_save').click(function() {
             $('#form').submit();        

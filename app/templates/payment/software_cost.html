@@ -216,7 +216,7 @@
 
     <script>
     $(document).ready(function(){
-	$('#softwares_cost_Modal').modal('show');
+	$('#softwares_cost_Modal').modal({backdrop: 'static', show: 'show'});
      
         $('#software_save').click(function() {
             $('#form').submit();        

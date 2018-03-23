@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}编写送货单{% endblock%}
+{% block title %}编写服务器成本{% endblock%}
 
 
 

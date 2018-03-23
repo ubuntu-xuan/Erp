@@ -64,27 +64,6 @@ def received_payment():
 	print('pro_mess',no,pro_mess[0])    
 
 
-
-    #for i in order_data:
-    #cursor.execute("SELECT num from payment ORDER BY id")
-
-    #nums = cursor.fetchall()
-
-    #for pay in payment:
-	#for num in nums:
-	    #print(pay,num)
-
-
-
-
-
-    #for date in order_date:
-
-
-    #cursor.execute("UPDATE payment SET tem_cost='%s' where purchase_order='%s'"%(date[0],i[0]))
-    #print('update')
-    #conn.commit()
-
     if request.method == 'POST':
         #修改数据
         id = request.form.get('row[id]', '')
@@ -2740,7 +2719,7 @@ def reimbursement():
 
     '''修改记录'''
     if number is not None:       
-        Reimbursement.query.filter_by(number=number).update({"date":date,"purchase_order":purchase_order.strip,"remark":remark,"loan":loan,"residue":residue,"rei_name":rei_name,"payee":payee})
+        Reimbursement.query.filter_by(number=number).update({"date":date,"purchase_order":purchase_order.strip(),"remark":remark,"loan":loan,"residue":residue,"rei_name":rei_name,"payee":payee})
         
 	db.session.commit()
 
@@ -2874,7 +2853,7 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
             purpose1 = ""
         if "amount1" in request.form:
             amount1 = request.form['amount1']
-            if amount1 == '':
+            if amount1 == ' ':
                 amount1 = 0.0
 
 
@@ -2884,8 +2863,12 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
             purpose2 = ""
         if "amount2" in request.form:
             amount2 = request.form['amount2']
-            if amount2 == '':
+            if amount2 == ' ':
                 amount2 = 0.0
+
+	print('jeeeeeeeeeeeeeeeeeeeeee')
+	print(amount2)
+
 
         if "purpose3" in request.form:
             purpose3 = request.form['purpose3']
@@ -2893,7 +2876,7 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
             purpose3 = ""
         if "amount3" in request.form:
             amount3 = request.form['amount3']
-            if amount3 == '':
+            if amount3 == ' ':
                 amount3 = 0.0
 
         if "purpose4" in request.form:
@@ -2902,7 +2885,7 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
             purpose4 = ""
         if "amount4" in request.form:
             amount4 = request.form['amount4']
-            if amount4 == '':
+            if amount4 == ' ':
                 amount4 = 0.0
 
         if "reimbursement_number" in request.form:
@@ -2937,47 +2920,40 @@ rei_name='edit',payee='edit',purpose_all='',purpose1='',amount1=0.0,purpose2='',
 
             ''' 更新合同结算表上的报销金额 '''
 	    purchase_order = Reimbursement.query.filter_by(number=reimbursement_number).first().purchase_order
-	    if purchase_order != "":
-	        print('purchase_order',purchase_order)
-	
-	        '''同一合同的所有报销单的金额相加'''
-	        get_amount = Reimbursement.query.filter_by(purchase_order=purchase_order).all()
+	    if purchase_order != "":	
+
+                if ContractAccountant.query.filter_by(purchase_order=purchase_order).first() is not None:
+		    '''当合同编号存在时'''
+	            '''同一合同的所有报销单的金额相加'''
+	            get_amount = Reimbursement.query.filter_by(purchase_order=purchase_order).all()
 
 
-	        sum_amount = []
-	        for n,amount in enumerate(get_amount):
-		    print(get_amount[n].sum_amount)
-		    sum_amount.append(get_amount[n].sum_amount) 	
-	    
+	            sum_amount = []
+	            for n,amount in enumerate(get_amount):
+		        sum_amount.append(get_amount[n].sum_amount) 	
+	    	   
+	            ContractAccountant.query.filter_by(purchase_order=purchase_order).update({"reimbursement":sum(sum_amount)})  
+		    db.session.commit()
 
-	        print('sum_amount',sum(sum_amount))
-	    
-	        ContractAccountant.query.filter_by(purchase_order=purchase_order).update({"reimbursement":sum(sum_amount)})  
-		db.session.commit()
+		    #计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+		    order_amount = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().order_amount
+		    tax = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tax
+		    tem_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tem_cost	
+		    servers_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().servers_cost
+		    fittings_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().fittings_cost
+		    softwares_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().softwares_cost
+		    reimbursement = sum(sum_amount)
+	 	    consult_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().consult_cost
+	 	    freight = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().freight
+		    after_sales = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().after_sales
 
-		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
-		order_amount = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().order_amount
-		tax = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tax
-		tem_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tem_cost	
-		servers_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().servers_cost
-		fittings_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().fittings_cost
-		softwares_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().softwares_cost
-		reimbursement = sum(sum_amount)
-		consult_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().consult_cost
-		freight = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().freight
-		after_sales = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().after_sales
+		    profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
 
-		print('计算 利润')
-		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
-	
-		#print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
-		#print('profitprofitprofit',profit)
-		#print(softwares_cost)
-        	ContractAccountant.query.filter_by(purchase_order=purchase_order).update(
+        	    ContractAccountant.query.filter_by(purchase_order=purchase_order).update(
                     {"profit":profit })
 
  	    
-		db.session.commit()
+		    db.session.commit()
 
     return render_template('payment/reimbursement.html')
 
@@ -3245,7 +3221,7 @@ amount1=0.0,purpose2='',amount2=0.0,purpose3='',amount3=0.0,purpose4='',amount4=
             purpose1 = ""
         if "amount1" in request.form:
             amount1 = request.form['amount1']
-            if amount1 == '':
+            if amount1 == ' ':
                 amount1 = 0.0
 
         if "purpose2" in request.form:
@@ -3254,7 +3230,7 @@ amount1=0.0,purpose2='',amount2=0.0,purpose3='',amount3=0.0,purpose4='',amount4=
             purpose2 = ""
         if "amount2" in request.form:
             amount2 = request.form['amount2']
-            if amount2 == '':
+            if amount2 == ' ':
                 amount2 = 0.0
 
         if "purpose3" in request.form:
@@ -3263,7 +3239,7 @@ amount1=0.0,purpose2='',amount2=0.0,purpose3='',amount3=0.0,purpose4='',amount4=
             purpose3 = ""
         if "amount3" in request.form:
             amount3 = request.form['amount3']
-            if amount3 == '':
+            if amount3 == ' ':
                 amount3 = 0.0
 
         if "purpose4" in request.form:
@@ -3272,7 +3248,7 @@ amount1=0.0,purpose2='',amount2=0.0,purpose3='',amount3=0.0,purpose4='',amount4=
             purpose4 = ""
         if "amount4" in request.form:
             amount4 = request.form['amount4']
-            if amount4 == '':
+            if amount4 == ' ':
                 amount4 = 0.0
 
         if "pay_request_number" in request.form:
@@ -3330,40 +3306,38 @@ amount1=0.0,purpose2='',amount2=0.0,purpose3='',amount3=0.0,purpose4='',amount4=
 	        purchase_order = PayRequest.query.filter_by(number=pay_request_number).first().purchase_order
 
 	        if purchase_order != "":
-	            '''同一合同编号的所有报销申请单的金额相加'''
-	            get_amount = PayRequest.query.filter_by(purchase_order=purchase_order).all()
+                    if ContractAccountant.query.filter_by(purchase_order=purchase_order).first() is not None:
+		        '''当合同编号存在时
+	                同一合同编号的所有报销申请单的金额相加'''
+	                get_amount = PayRequest.query.filter_by(purchase_order=purchase_order).all()
 
-	            sum_amount = []
-	            for n,amount in enumerate(get_amount):
-		        sum_amount.append(get_amount[n].sum_payed) 	
+	    	        sum_amount = []
+	                for n,amount in enumerate(get_amount):
+		            sum_amount.append(get_amount[n].sum_payed) 	
 	    
+	                ContractAccountant.query.filter_by(purchase_order=purchase_order).update({"consult_cost":sum(sum_amount)})
+	                db.session.commit()
+	
+		        #计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+		        order_amount = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().order_amount
+		        tax = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tax
+		        tem_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tem_cost	
+		        servers_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().servers_cost
+		        fittings_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().fittings_cost
+		        softwares_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().softwares_cost
+		        reimbursement = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().reimbursement
+		        consult_cost = sum(sum_amount)
 
-	            ContractAccountant.query.filter_by(purchase_order=purchase_order).update({"consult_cost":sum(sum_amount)})
-	            db.session.commit()
+		        freight = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().freight
+		        after_sales = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().after_sales
+
+		        profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
 	
 
-		    #计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+        	        ContractAccountant.query.filter_by(purchase_order=purchase_order).update(
+                        {"profit":profit })
 
-		    order_amount = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().order_amount
-		    tax = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tax
-		    tem_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().tem_cost	
-		    servers_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().servers_cost
-		    fittings_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().fittings_cost
-		    softwares_cost = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().softwares_cost
-		    reimbursement = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().reimbursement
-		    consult_cost = sum(sum_amount)
-
-		    freight = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().freight
-		    after_sales = ContractAccountant.query.filter_by(purchase_order=purchase_order).first().after_sales
-
-		    print('计算 利润')
-		    profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
-	
-
-        	    ContractAccountant.query.filter_by(purchase_order=purchase_order).update(
-                    {"profit":profit })
-
-		db.session.commit()
+		    db.session.commit()
 
     return render_template('payment/pay_request.html')
 

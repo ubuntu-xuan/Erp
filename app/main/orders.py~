@@ -518,19 +518,14 @@ def orders():
 	    cursor.execute("SELECT tax_type from orders where  order_number='%s'"%(get_order))
 
 	    if_tax = cursor.fetchall()
-
 	    tax_value = order_mes[0][3]
-
-	   
-
-	    print('if_taxif_taxif_tax',if_tax)
-
 
 	    if if_tax[0][0] == "不含税":
 	 	tax_value = 0.0
 
-
-	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
 	
 	cursor.close()
       	database.commit()
@@ -754,8 +749,34 @@ def orders_integrate():
 	    print('orders修改自动修改合同结算信息')
             contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
             if contract_accountant is not None:
+                #更新合同金额
                 ContractAccountant.query.filter_by(purchase_order=order_number).update(
                     {"order_amount": order_amount})
+	        #若为增值税，更新税金
+	        tax_type = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax_type
+		if tax_type == "增值税":
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"tax": float(order_amount)*0.1})
+	        db.session.commit()
+
+		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+	        order_amount = ContractAccountant.query.filter_by(purchase_order=order_number).first().order_amount
+		tax = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax
+		tem_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().tem_cost	
+		servers_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().servers_cost
+	 	fittings_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().fittings_cost
+		softwares_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().softwares_cost
+		reimbursement = ContractAccountant.query.filter_by(purchase_order=order_number).first().reimbursement
+		consult_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().consult_cost
+		freight = ContractAccountant.query.filter_by(purchase_order=order_number).first().freight
+		after_sales = ContractAccountant.query.filter_by(purchase_order=order_number).first().after_sales
+
+		print('计算 利润')
+		print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
+		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
+	 	#print(profit)
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"profit":profit })
 
 
             db.session.commit()
@@ -867,7 +888,7 @@ def orders_integrate():
 
             no = long(max(get_data)) + 1
 
-            # print '++++++++++------+',no
+
 
         # 获取系统时间 
         get_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
@@ -975,7 +996,9 @@ def orders_integrate():
 	    if if_tax[0][0] == "不含税":
 	 	tax_value = 0.0
 
-	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
 	
 	cursor.close()
       	database.commit()
@@ -1196,8 +1219,34 @@ def orders_electric():
 	    print('orders修改自动修改合同结算信息')
             contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
             if contract_accountant is not None:
+                #更新合同金额
                 ContractAccountant.query.filter_by(purchase_order=order_number).update(
                     {"order_amount": order_amount})
+	        #若为增值税，更新税金
+	        tax_type = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax_type
+		if tax_type == "增值税":
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"tax": float(order_amount)*0.1})
+	        db.session.commit()
+
+		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+	        order_amount = ContractAccountant.query.filter_by(purchase_order=order_number).first().order_amount
+		tax = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax
+		tem_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().tem_cost	
+		servers_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().servers_cost
+	 	fittings_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().fittings_cost
+		softwares_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().softwares_cost
+		reimbursement = ContractAccountant.query.filter_by(purchase_order=order_number).first().reimbursement
+		consult_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().consult_cost
+		freight = ContractAccountant.query.filter_by(purchase_order=order_number).first().freight
+		after_sales = ContractAccountant.query.filter_by(purchase_order=order_number).first().after_sales
+
+		print('计算 利润')
+		print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
+		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
+	 	#print(profit)
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"profit":profit })
 
             db.session.commit()
 
@@ -1419,8 +1468,9 @@ def orders_electric():
 	    if if_tax[0][0] == "不含税":
 	 	tax_value = 0.0
 
-
-	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
 	
 	cursor.close()
       	database.commit()
@@ -1648,8 +1698,34 @@ def orders_commerce():
 	    print('orders修改自动修改合同结算信息')
             contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
             if contract_accountant is not None:
+                #更新合同金额
                 ContractAccountant.query.filter_by(purchase_order=order_number).update(
                     {"order_amount": order_amount})
+	        #若为增值税，更新税金
+	        tax_type = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax_type
+		if tax_type == "增值税":
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"tax": float(order_amount)*0.1})
+	        db.session.commit()
+
+		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+	        order_amount = ContractAccountant.query.filter_by(purchase_order=order_number).first().order_amount
+		tax = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax
+		tem_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().tem_cost	
+		servers_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().servers_cost
+	 	fittings_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().fittings_cost
+		softwares_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().softwares_cost
+		reimbursement = ContractAccountant.query.filter_by(purchase_order=order_number).first().reimbursement
+		consult_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().consult_cost
+		freight = ContractAccountant.query.filter_by(purchase_order=order_number).first().freight
+		after_sales = ContractAccountant.query.filter_by(purchase_order=order_number).first().after_sales
+
+		print('计算 利润')
+		print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
+		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
+	 	#print(profit)
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"profit":profit })
 
             db.session.commit()
 
@@ -1871,8 +1947,9 @@ def orders_commerce():
 	    if if_tax[0][0] == "不含税":
 	 	tax_value = 0.0
 
-
-	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
 	
 	cursor.close()
       	database.commit()
@@ -2102,8 +2179,34 @@ def orders_others():
 	    print('orders修改自动修改合同结算信息')
             contract_accountant = ContractAccountant.query.filter_by(purchase_order=order_number).first()
             if contract_accountant is not None:
+                #更新合同金额
                 ContractAccountant.query.filter_by(purchase_order=order_number).update(
                     {"order_amount": order_amount})
+	        #若为增值税，更新税金
+	        tax_type = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax_type
+		if tax_type == "增值税":
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"tax": float(order_amount)*0.1})
+	        db.session.commit()
+
+		#计算 利润=合同金额-税金-终端成本-服务器成本-配件成本-软件成本-报销费用-杂费-运费-得利税
+	        order_amount = ContractAccountant.query.filter_by(purchase_order=order_number).first().order_amount
+		tax = ContractAccountant.query.filter_by(purchase_order=order_number).first().tax
+		tem_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().tem_cost	
+		servers_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().servers_cost
+	 	fittings_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().fittings_cost
+		softwares_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().softwares_cost
+		reimbursement = ContractAccountant.query.filter_by(purchase_order=order_number).first().reimbursement
+		consult_cost = ContractAccountant.query.filter_by(purchase_order=order_number).first().consult_cost
+		freight = ContractAccountant.query.filter_by(purchase_order=order_number).first().freight
+		after_sales = ContractAccountant.query.filter_by(purchase_order=order_number).first().after_sales
+
+		print('计算 利润')
+		print(order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales)
+		profit = order_amount-tax-tem_cost-servers_cost-fittings_cost-softwares_cost-reimbursement-consult_cost-freight-after_sales
+	 	#print(profit)
+                ContractAccountant.query.filter_by(purchase_order=order_number).update(
+                    {"profit":profit })
 
             db.session.commit()
 
@@ -2325,12 +2428,14 @@ def orders_others():
 	    if if_tax[0][0] == "不含税":
 	 	tax_value = 0.0
 
-
-	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost) VALUE ('%s','%s','%s','%s','%s','%s','%s')"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum))
+	    profit = order_mes[0][3] - float(tax_value)*0.1 - tem_cost_sum
+ 
+	    cursor.execute("INSERT INTO contract_accountant(order_date,client_name,purchase_order,tax_type,order_amount,tax,tem_cost,servers_cost,fittings_cost,softwares_cost,reimbursement,consult_cost,freight,after_sales,profit) VALUE ('%s','%s','%s','%s','%s','%s','%s',0.0,0.0,0.0,0.0,0.0,0.0,0.0,%s)"% (order_mes[0][0],order_mes[0][1],get_order,order_mes[0][2],order_mes[0][3],float(tax_value)*0.1,tem_cost_sum,profit))
 	
 	cursor.close()
       	database.commit()
 	database.close()
+
     '''删除记录'''
 
     def reset_delete(id, remove_order):
@@ -5011,6 +5116,26 @@ def production_model():
         #print "Price_Storage", orders, price_C100, price_E300, price_AX700,price_AX500
 
         Price_Storage.query.filter_by(requisition_number=orders).update({'price_C100': price_C100, 'price_E300': price_E300, 'price_T300': price_T300, 'price_T600': price_T600,'price_AX500':price_AX500,'price_AX700': price_AX700,'price_AX700_multi': price_AX700_multi,'price_AX730': price_AX730, 'price_AX800': price_AX800,'price_N600NW':price_N600NW,'price_2GB': price_2GB,'price_4GB': price_4GB, 'price_8GB': price_8GB, 'price_4GBFLASH': price_4GBFLASH,'price_8GBFLASH': price_8GBFLASH, 'price_8GBHD': price_8GBHD, 'price_16GBHD': price_16GBHD,'price_32GBHD': price_32GBHD, 'price_64GBHD': price_64GBHD, 'price_128GBHD': price_128GBHD,'price_512GBHD': price_512GBHD, 'price_ARMRTL8188': price_ARMRTL8188, 'price_X86Intel': price_X86Intel,'price_drivercd': price_drivercd, 'price_ThinVirt': price_ThinVirt})
+
+	if Production_Orders.query.filter_by(requisition_number=orders).first() is not None:
+	    order_number = Production_Orders.query.filter_by(requisition_number=orders).first().order_number
+	    
+	    if order_number != "":
+		if ContractAccountant.query.filter_by(purchase_order=order_number).first() is not None:
+		    ContractAccountant.query.filter_by(purchase_order=order_number).update({"tem_cost": all_const})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         db.session.commit()
 
