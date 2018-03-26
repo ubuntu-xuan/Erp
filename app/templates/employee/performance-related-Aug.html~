@@ -199,7 +199,7 @@
                 align: 'center',
                 editable: {
                     type: 'text',
-                    emptytext: "-", 
+                    emptytext: "备注", 
                     title: '备注',
                 },                 
             }],

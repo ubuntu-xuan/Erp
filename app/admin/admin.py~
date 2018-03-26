@@ -6,6 +6,7 @@ from flask.ext import admin
 
 # from flask_admin import Admin
 
+
 from flask_login import logout_user,login_required,login_user,current_user
 #from flask.ext.superadmin import Admin,BaseView,expose
 # from flask.ext.admin import BaseView,expose
@@ -101,6 +102,8 @@ class PerformModelView(ModelView):
     # Using the CKTextAreaField to replace the Field name is ``
     form_overrides = {
         'content': CKTextAreaField,
+        'assist_content': CKTextAreaField,
+        'cheif_reply': CKTextAreaField,
 	'complete':CKTextAreaField,
 	'remarks':CKTextAreaField,
     }
@@ -112,9 +115,8 @@ class PerformModelView(ModelView):
     create_template = 'admin/edit_client.html'
     edit_template = 'admin/edit_client.html'
 
-
-    column_labels = dict(date=u'日期',name=u'姓名',place=u'工作地点',content=u'工作内容',complete=u'完成情况',integration=u'积分',remarks=u'备注')
-    column_list = ('date','name','place','content','complete','integration','remarks')
+    column_labels = dict(date=u'日期',name=u'姓名',place=u'工作地点',content=u'工作内容',assist_content=u'需协助工作内容',chief_reply=u'上级回复',complete=u'完成情况',integration=u'积分',remarks=u'备注')
+    column_list = ('date','name','place','content','assist_content','chief_reply','complete','integration','remarks')
     column_searchable_list = ('name', 'date')
     column_filters = ('name', 'date')
     def __init__(self, session, **kwargs):
@@ -127,6 +129,19 @@ class ClientModelView(ModelView):
     def is_accessible(self):
         if current_user.is_authenticated and current_user.username =='admin':
         	return True
+
+    # Using the CKTextAreaField to replace the Field name is ``
+    form_overrides = {
+        'tract': CKTextAreaField
+    }
+
+    #可以联网时用
+    #extra_js = ['http://cdn.ckeditor.com/4.6.0/full/ckeditor.js']
+
+    #不可联网时
+    create_template = 'admin/edit_client.html'
+    edit_template = 'admin/edit_client.html'
+
 
     column_labels = dict(client_no=u'客户编号',service_no=u'服务编号',company_name=u'公司名称',license=u'执照编号',contact=u'联系人',position=u'职位',telephone=u'手机号码',cellphone=u'固定电话',email=u'邮箱',qq=u'QQ或微信',adress=u'详细地址',saler=u'业务代表',status=u'状态',tract=u'跟踪')
     column_list =('client_no','service_no','company_name','license','contact','position','telephone','cellphone','email','qq','adress','saler','status','tract')

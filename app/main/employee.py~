@@ -44,6 +44,7 @@ def getCon():
 @main.route('/employee/performance_related_Jan',methods = ['GET','POST'])
 @login_required
 def performance_related_Jan():
+
     username = current_user.username
     if username == "liangzhixuan":
         username = '梁智轩'
@@ -62,20 +63,13 @@ def performance_related_Jan():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '')
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
+
     """建立表格ID与数据表ID的关联"""  
 
-    #连接数据库
+
+
+
+    # 连接数据库
     cursor = getCon().cursor() 
     cursor.execute("SELECT * from performance_related where month='01'  and name='%s' "%username)
     data = cursor.fetchall()
@@ -98,22 +92,152 @@ def performance_related_Jan():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')
+    integration= request.form.get('row[integration]', '')
+ 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
         db.session.commit()    
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='01')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='01')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -146,6 +270,69 @@ def performance_related_Jan():
 
     if ids != "":
         reset_delete(ids)
+
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
+
+
 
 
     return render_template("employee/performance-related-Jan.html")
@@ -197,6 +384,8 @@ def performance_related_Jan_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -225,17 +414,6 @@ def performance_related_Feb():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -261,6 +439,136 @@ def performance_related_Feb():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+
+
     #cursor.close()
     #getCon().close()
 
@@ -268,14 +576,14 @@ def performance_related_Feb():
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()   
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='02')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='02')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -308,6 +616,67 @@ def performance_related_Feb():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
+
 
     return render_template("employee/performance-related-Feb.html")
 
@@ -358,6 +727,9 @@ def performance_related_Feb_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
+
     
         jsonData.append(result)
 
@@ -387,19 +759,6 @@ def performance_related_Mar():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
-    """建立表格ID与数据表ID的关联"""  
-
     #连接数据库
     cursor = getCon().cursor() 
     cursor.execute("SELECT * from performance_related where month='03' and name='%s' "%username)
@@ -423,21 +782,149 @@ def performance_related_Mar():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+    """建立表格ID与数据表ID的关联"""  
+
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
         db.session.commit()    
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='03')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='03')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -470,6 +957,67 @@ def performance_related_Mar():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
+
 
     return render_template("employee/performance-related-Mar.html")
 
@@ -522,6 +1070,8 @@ def performance_related_Mar_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -551,17 +1101,6 @@ def performance_related_Apr():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -587,22 +1126,148 @@ def performance_related_Apr():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '') 
+    integration= request.form.get('row[integration]', '')  
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+
+
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-             "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
         db.session.commit()    
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='04')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='04')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -635,6 +1300,68 @@ def performance_related_Apr():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
+
+
 
     return render_template("employee/performance-related-Apr.html")
 
@@ -686,6 +1413,8 @@ def performance_related_Apr_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -715,17 +1444,6 @@ def performance_related_May():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -749,25 +1467,149 @@ def performance_related_May():
             id_from_mysql.append(datas)
 
         id_concect = dict(zip(id_from_table,id_from_mysql))
-        print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '') 
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-             "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
-
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit() 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='05')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='05')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -800,6 +1642,65 @@ def performance_related_May():
 
     if ids != "":
         reset_delete(ids)
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-May.html")
@@ -852,6 +1753,8 @@ def performance_related_May_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -880,17 +1783,6 @@ def performance_related_Jun():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -916,23 +1808,150 @@ def performance_related_Jun():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-              "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit() 
 
-    #增加  
+    # 增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='06')
+	print('add_true')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='06')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -965,6 +1984,66 @@ def performance_related_Jun():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Jun.html")
@@ -1017,6 +2096,8 @@ def performance_related_Jun_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1046,17 +2127,6 @@ def performance_related_Jul():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -1082,23 +2152,149 @@ def performance_related_Jul():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '') 
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
+ 
+
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-               "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()   
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='07')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='07')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1131,6 +2327,64 @@ def performance_related_Jul():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Jul.html")
@@ -1184,6 +2438,8 @@ def performance_related_Jul_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1212,16 +2468,7 @@ def performance_related_Aug():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
+ 
  
     """建立表格ID与数据表ID的关联"""  
 
@@ -1246,25 +2493,147 @@ def performance_related_Aug():
             id_from_mysql.append(datas)
 
         id_concect = dict(zip(id_from_table,id_from_mysql))
-        print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')
+    integration= request.form.get('row[integration]', '')  
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '')
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-              "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()   
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='08')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='08')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1297,6 +2666,66 @@ def performance_related_Aug():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Aug.html")
@@ -1350,6 +2779,8 @@ def performance_related_Aug_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1378,16 +2809,7 @@ def performance_related_Sep():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
+ 
  
     """建立表格ID与数据表ID的关联"""  
 
@@ -1412,25 +2834,147 @@ def performance_related_Sep():
             id_from_mysql.append(datas)
 
         id_concect = dict(zip(id_from_table,id_from_mysql))
-        print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
 
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '') 
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '')
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-                "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()   
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='09')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='09')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1463,6 +3007,65 @@ def performance_related_Sep():
 
     if ids != "":
         reset_delete(ids)
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Sep.html")
@@ -1516,6 +3119,8 @@ def performance_related_Sep_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1543,17 +3148,6 @@ def performance_related_Oct():
         username = '欧捷'
     elif username == "zhuxiaoping":
         username = '朱晓平'
-
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
  
     """建立表格ID与数据表ID的关联"""  
 
@@ -1580,23 +3174,147 @@ def performance_related_Oct():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '') 
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place, 
-             "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()       
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='10')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='10')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1629,6 +3347,66 @@ def performance_related_Oct():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Oct.html")
@@ -1682,6 +3460,8 @@ def performance_related_Oct_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1710,14 +3490,130 @@ def performance_related_Nov():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
     id = request.form.get('row[id]', '')
     date = request.form.get('row[date]', '')
     name= request.form.get('row[name]', '')
     place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
+    integration= request.form.get('row[integration]', '')   
     year= request.form.get('row[year]', '') 
     month= request.form.get('row[month]', '') 
  
@@ -1744,25 +3640,21 @@ def performance_related_Nov():
             id_from_mysql.append(datas)
 
         id_concect = dict(zip(id_from_table,id_from_mysql))
-        print id_concect
 
-    #cursor.close()
-    #getCon().close()
 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-              "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()  
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='11')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='11')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1795,6 +3687,66 @@ def performance_related_Nov():
 
     if ids != "":
         reset_delete(ids)
+
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Nov.html")
@@ -1848,6 +3800,8 @@ def performance_related_Nov_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 
@@ -1876,17 +3830,6 @@ def performance_related_Dec():
     elif username == "zhuxiaoping":
         username = '朱晓平'
 
-    id = request.form.get('row[id]', '')
-    date = request.form.get('row[date]', '')
-    name= request.form.get('row[name]', '')
-    place= request.form.get('row[place]', '')
-    content= request.form.get('row[content]', '')
-    complete= request.form.get('row[complete]', '')  
-    integration= request.form.get('row[integration]', '') 
-    remarks= request.form.get('row[remarks]', '')  
-    year= request.form.get('row[year]', '') 
-    month= request.form.get('row[month]', '') 
- 
     """建立表格ID与数据表ID的关联"""  
 
     #连接数据库
@@ -1912,23 +3855,145 @@ def performance_related_Dec():
         id_concect = dict(zip(id_from_table,id_from_mysql))
         print id_concect
 
-    #cursor.close()
-    #getCon().close()
+    # 返回工作内容
+    get_performance_number_data = request.form.get('get_performance_data', '')
+    if any(get_performance_number_data):
+        performance_number = json.loads(get_performance_number_data)["performance_number"]  
 
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if performance_number != " ":
+
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['content'] = row[4]
+
+                jsonData.append(result)
+
+	
+        return json.dumps(jsonData)
+
+    # 返回需协助工作内容
+    get_assist_performance_number_data = request.form.get('get_assist_performance_data', '')
+    if any(get_assist_performance_number_data):
+        assist_performance_number = json.loads(get_assist_performance_number_data)["assist_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if assist_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(assist_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['assist_content'] = row[10]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+
+    # 完成情况
+    get_complete_performance_number_data = request.form.get('get_complete_performance_data', '')
+    if any(get_complete_performance_number_data):
+        complete_performance_number = json.loads(get_complete_performance_number_data)["complete_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if complete_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(complete_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['complete'] = row[5]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    # 备注
+    get_remarks_performance_number_data = request.form.get('get_remarks_performance_data', '')
+    if any(get_remarks_performance_number_data):
+        remarks_performance_number = json.loads(get_remarks_performance_number_data)["remarks_performance_number"]  
+
+        try:
+            '''warning:这里需要设置为环境获取'''
+            conn = MySQLdb.connect("localhost","root","uroot012","erp_development",charset='utf8')
+            cursor = conn.cursor()
+        except:
+            print 'MySQL connect fail...'
+
+
+        if remarks_performance_number != " ":
+            cursor.execute("SELECT * from performance_related where id='%s'"%id_concect[int(remarks_performance_number)])
+            data = cursor.fetchall()
+            cursor.close()
+
+            conn.close()
+            jsonData = []
+	
+            for n,row  in enumerate(data):
+                result = {}
+                result['remarks'] = row[9]
+
+                jsonData.append(result)
+
+        return json.dumps(jsonData)
+
+    id = request.form.get('row[id]', '')
+    date = request.form.get('row[date]', '')
+    name= request.form.get('row[name]', '')
+    place= request.form.get('row[place]', '')  
+    integration= request.form.get('row[integration]', '') 
+    year= request.form.get('row[year]', '') 
+    month= request.form.get('row[month]', '') 
 
     if id !='':
         old_Value = Performance_Related.query.filter_by(id=id_concect[int(id)]).first()
         if  old_Value is not None:
             print "更新数据"
-            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,
-              "content":content,"complete":complete,"integration":integration,"remarks":remarks,"year":year,"month":month}) 
-        db.session.commit()    
+            Performance_Related.query.filter_by(id=id_concect[int(id)]).update({"date":date,"name":name,"place":place,"integration":integration,"year":year,"month":month}) 
+        db.session.commit()     
 
     #增加  
     add =request.form.get('add','')
    
     if add == 'add_true':
-        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',integration='',remarks='',year=get_year,month='12')
+        add_item = Performance_Related(date=get_time,name=username,place='',content='',complete='',assist_content='',chief_reply='',integration='',remarks='',year=get_year,month='12')
 
         db.session.add(add_item)
         db.session.commit() 
@@ -1961,6 +4026,65 @@ def performance_related_Dec():
 
     if ids != "":
         reset_delete(ids)
+    # 接收表单传回的信息
+    if request.method == 'POST':
+        # 保存工作内容
+        if "content_textarea" in request.form:
+            work_content = request.form['content_textarea']
+        else:
+	        work_content = ""
+
+        if "performance_number" in request.form:
+            performance_number = request.form['performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(performance_number)]).update({"content":work_content })
+	    	    db.session.commit()
+        else:
+			performance_number = ""
+
+
+
+        # 保存需协助工作内容
+        if "assist_content_textarea" in request.form:
+            assist_work_content = request.form['assist_content_textarea']
+        else:
+	        assist_work_content = ""
+
+        if "assist_performance_number" in request.form:
+            assist_performance_number = request.form['assist_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(assist_performance_number)]).update({"assist_content":assist_work_content })
+	    	    db.session.commit()
+        else:
+			assist_performance_number = ""
+
+        # 完成情况
+        if "complete_content_textarea" in request.form:
+            complete_content = request.form['complete_content_textarea']
+        else:
+	        complete_content = ""
+
+        if "complete_performance_number" in request.form:
+            complete_performance_number = request.form['complete_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(complete_performance_number)]).update({"complete":complete_content })
+	    	    db.session.commit()
+        else:
+			complete_performance_number = ""
+
+        # 备注
+        if "remarks_content_textarea" in request.form:
+            remarks_content = request.form['remarks_content_textarea']
+        else:
+	        remarks_content = ""
+
+        if "remarks_performance_number" in request.form:
+            remarks_performance_number = request.form['remarks_performance_number']
+            if Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]) is not None:
+	    	    Performance_Related.query.filter_by(id=id_concect[int(remarks_performance_number)]).update({"remarks":remarks_content })
+	    	    db.session.commit()
+        else:
+			remarks_performance_number = ""
 
 
     return render_template("employee/performance-related-Dec.html")
@@ -2001,8 +4125,6 @@ def performance_related_Dec_return_json():
     jsonData = []
 
     for n,row  in enumerate(data):
-        #print data[0]
-        ##print row[1]
         result = {}
         result['id'] = n + 1
         result['date'] = row[1].strftime('%Y-%m-%d')
@@ -2014,6 +4136,8 @@ def performance_related_Dec_return_json():
         result['year'] = row[7]
         result['month'] = row[8]
         result['remarks'] = row[9]
+        result['assist_content'] = row[10]
+        result['chief_reply'] = row[11]
     
         jsonData.append(result)
 

@@ -70,12 +70,6 @@ class User(UserMixin,db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
-
-
-
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -106,7 +100,6 @@ class Contract(db.Model):
     path = db.Column(db.String(64),index=True)
     upload_date = db.Column(db.String(64),index=True)
 
-
     def __repr__(self):
         return '<Contract %r>' % self.name
 
@@ -123,8 +116,6 @@ class Receipts(db.Model):
 
     def __repr__(self):
         return '<Contract %r>' % self.name
-
-
 
 
 #合同结算模型
@@ -479,9 +470,6 @@ class PayRequest(db.Model):
     deposit_account = db.Column(db.String(64))
     tax_number = db.Column(db.String(64))
 
-
-
-
     def __repr__(self):
         return '<PayRequest %r>' % self.number
 
@@ -810,11 +798,6 @@ class Payment(db.Model):
         return '<Payment %r>' % self.no
 
 
-
-
-
-
-
 #采购清单模型
 class Purchase_List(db.Model):
     __tablename__='purchase_list'
@@ -839,6 +822,8 @@ class Performance_Related(db.Model):
     name = db.Column(db.String(64))
     place = db.Column(db.String(64))
     content = db.Column(db.Text)
+    assist_content = db.Column(db.Text)
+    chief_reply = db.Column(db.Text)
     complete = db.Column(db.Text)
     integration = db.Column(db.String(64))
     year = db.Column(db.Integer,index=True)

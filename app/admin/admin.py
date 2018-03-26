@@ -102,6 +102,8 @@ class PerformModelView(ModelView):
     # Using the CKTextAreaField to replace the Field name is ``
     form_overrides = {
         'content': CKTextAreaField,
+        'assist_content': CKTextAreaField,
+        'chief_reply': CKTextAreaField,
 	'complete':CKTextAreaField,
 	'remarks':CKTextAreaField,
     }
@@ -113,8 +115,8 @@ class PerformModelView(ModelView):
     create_template = 'admin/edit_client.html'
     edit_template = 'admin/edit_client.html'
 
-    column_labels = dict(date=u'日期',name=u'姓名',place=u'工作地点',content=u'工作内容',complete=u'完成情况',integration=u'积分',remarks=u'备注')
-    column_list = ('date','name','place','content','complete','integration','remarks')
+    column_labels = dict(date=u'日期',name=u'姓名',place=u'工作地点',content=u'工作内容',assist_content=u'需协助工作内容',chief_reply=u'上级回复',complete=u'完成情况',integration=u'积分',remarks=u'备注')
+    column_list = ('date','name','place','content','assist_content','chief_reply','complete','integration','remarks')
     column_searchable_list = ('name', 'date')
     column_filters = ('name', 'date')
     def __init__(self, session, **kwargs):

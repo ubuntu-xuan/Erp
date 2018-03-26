@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}仓库管理{% endblock%}
+{% block title %}员工管理{% endblock%}
 
 
 {% block styles %}
@@ -8,6 +8,20 @@
     <style>
      #fittings_ModalLabel{text-align:center}
      #table_container{border-top:0}
+     input[name="performance_number"],
+     input[name="assist_performance_number"],
+     input[name="complete_performance_number"],
+     input[name="remarks_performance_number"]{
+	 	width:10%;
+		display:inline-block;
+    }
+     input[name="performance_date"],
+     input[name="assist_performance_date"],
+     input[name="complete_performance_date"],
+     input[name="remarks_performance_date"]{
+	 	width:20%;
+		display:inline-block;
+    }
     </style>
 
 
@@ -76,6 +90,176 @@
         </div>
         <!-- /page content -->
 
+        <!-- 工作内容模态框（Modal） -->
+	<div class="modal fade" id="content_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="contentLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:700px;" >
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" style="text-align:center;">
+               	        工作内容
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='form' role="form" method="post"  > 
+		  <p>记录序号: <input class="form-control"  name='performance_number' readonly="true" /> 日期: <input class="form-control"  name='performance_date' readonly="true" /></p>
+                  <textarea name="content_textarea" class="form-control  content_textarea" style="height:400px;" value='{{ content_textarea }}'></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='content_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+        <!-- 需协助工作内容模态框（Modal） -->
+	<div class="modal fade" id="assist_content_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="assistContentLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:700px;" >
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" style="text-align:center;">
+               	        需协助工作内容
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='assist_form' role="form" method="post"  > 
+		  <p>记录序号: <input class="form-control"  name='assist_performance_number' readonly="true" /> 日期: <input class="form-control"  name='assist_performance_date' readonly="true" /></p>
+                  <textarea name="assist_content_textarea" class="form-control  assist_content_textarea" style="height:400px;" value='{{ assist_content_textarea }}'></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='assist_content_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+        <!-- 完成情况模态框（Modal） -->
+	<div class="modal fade" id="complete_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="completeLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:700px;" >
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" style="text-align:center;">
+               	        完成情况
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='complete_form' role="form" method="post"  > 
+		  <p>记录序号: <input class="form-control"  name='complete_performance_number' readonly="true" /> 日期: <input class="form-control"  name='complete_performance_date' readonly="true" /></p>
+                  <textarea name="complete_content_textarea" class="form-control  complete_content_textarea" style="height:400px;" value='{{ complete_content_textarea }}'></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='complete_content_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+        <!--  备注模态框（Modal） -->
+	<div class="modal fade" id="remarks_Modal" tabindex="-1" role="dialog"
+   	    aria-labelledby="remarkseLabel" aria-hidden="true" >
+   	<div class="modal-dialog" style="width:700px;" >
+            <div class="modal-content">
+                <div class="modal-header">
+            	<button type="button" class="close"
+               	    data-dismiss="modal" aria-hidden="true">
+                    &times;
+            	</button>
+            	<h4 class="modal-title" style="text-align:center;">
+               	        备注
+            	</h4>
+            </div>
+            <div class="modal-body">
+                
+            <!-- page content -->
+            <div class="center_col" role="main">
+               <form class="form" id='remarks_form' role="form" method="post"  > 
+		  <p>记录序号: <input class="form-control"  name='remarks_performance_number' readonly="true" /> 日期: <input class="form-control"  name='remarks_performance_date' readonly="true" /></p>
+                  <textarea name="remarks_content_textarea" class="form-control  remarks_content_textarea" style="height:400px;" value='{{ remarks_content_textarea }}'></textarea>
+               </form>
+
+            </div>
+        
+        </div>
+        
+        <!-- /page content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                   data-dismiss="modal">关闭
+                </button>
+                <button type="button" id='remarks_content_save' class="btn btn-primary">
+                  <i class="glyphicon glyphicon-check"></i> 保存
+            	</button>
+            </div>
+
+          </div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+
+
+
+
 
 {% endblock %}
 
@@ -83,7 +267,35 @@
     {{ super() }}
 
     <script>
-       function initTable() {              
+  
+
+       function initTable() {
+        //操作栏初始化
+        //function operateFormatter(value, row, index) {
+                //return [
+            //'<a class="remove"  href="javascript:;" title="删除" disabled >',
+            //'<i class="glyphicon glyphicon-remove"></i>','删除',
+            //'</a>',' ',
+
+           //].join('');
+        //}
+
+
+//        window.operateEvents = {
+//
+//           'click .remove': function (e, value, row, index) {   
+//    
+//                //alert(row.id);
+//                $table.bootstrapTable('remove', {
+//                   field: 'id',
+//                   values: row.id
+//                });
+//
+//                //$remove.prop('disabled', true);
+//            },
+          
+//        };
+               
         //先销毁表格
 {#        $('#table').bootstrapTable('destroy');#}
         //初始化表格,动态从服务器加载数据
@@ -143,65 +355,45 @@
             },{
                 field: 'name',
                 title: '姓名',
-                align: 'center',            
+                align: 'center',         
             },{
                 field: 'place',
                 title: '工作地点',
                 align: 'center',
                 editable: {
-                    type: 'text',
-                    emptytext: "工作地点", 
+                    type: 'select',
                     title: '工作地点',
-                    validate: function (value) {
-                        value = $.trim(value);
-                        if (!value) {
-                            return 'This field is required';
-                        }
-                    },
-                },                     
+                    emptytext: '选择',
+                    source: [
+                         { value: '南城', text: '南城' },
+                         { value: '华科城', text: '华科城' },
+                         { value: '深圳', text: '深圳' },
+                    ]
+                },                    
             },{
                 field: 'content',
                 title: '工作内容',
+                align: 'center',                     
+            },{
+                field: 'assist_content',
+                title: '需协助工作内容',
                 align: 'center',
-                editable: {
-                    type: 'text',
-                    emptytext: "工作内容", 
-                    title: '工作内容',
-                    validate: function (value) {
-                        value = $.trim(value);
-                        if (!value) {
-                            return 'This field is required';
-                        }
-                    },
-                },            
+            },{
+                field: 'chief_reply',
+                title: '上级回复',
+                align: 'center',
             },{
                 field: 'complete',
-                title: '工作完成情况',
+                title: '完成情况',
                 align: 'center',
-                editable: {
-                    type: 'text',
-                    emptytext: "工作完成情况", 
-                    title: '工作完成情况',
-                    validate: function (value) {
-                        value = $.trim(value);
-                        if (!value) {
-                            return 'This field is required';
-                        }
-                    },
-                },                
             },{
                 field: 'integration',
                 title: '积分',
-                align: 'center',                
+                align: 'center',                 
             },{
                 field: 'remarks',
                 title: '备注',
                 align: 'center',
-                editable: {
-                    type: 'text',
-                    emptytext: "备注", 
-                    title: '备注',
-                },                 
             }],
 
             queryParamsType : "undefined",
@@ -217,9 +409,10 @@
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
-                            alert('提交数据成功');
+
                         }
                     },
+
                     complete: function () {
 
                     }
@@ -286,7 +479,6 @@
             $('#table').bootstrapTable('scrollTo', '10px');
           });
 
-
           $table.on('check.bs.table uncheck.bs.table ' +
                 'check-all.bs.table uncheck-all.bs.table', function () {
             $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
@@ -295,7 +487,102 @@
                 selections = getIdSelections();
             // push or splice the selections if you want to save all data selections
 
-            });
+          });
+
+	  $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
+	      if(field=="content"){
+	          $('#content_Modal').modal({backdrop: 'static', show: 'toggle'});
+                   var data = {
+                   	get_performance_data:JSON.stringify({"performance_number":row.id}) 
+               	   }               
+                  $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_Nov",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+               	  	    $('input[name="performance_number"]').val(row.id);
+               	  	    $('input[name="performance_date"]').val(row.date);	
+		 	    $('.content_textarea').val(data[0]["content"]);
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+
+	      }    
+	      if(field=="assist_content"){
+	          $('#assist_content_Modal').modal({backdrop: 'static', show: 'toggle'});
+                   var data = {
+                   	get_assist_performance_data:JSON.stringify({"assist_performance_number":row.id}) 
+               	   }               
+                  $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_Nov",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+               	  	    $('input[name="assist_performance_number"]').val(row.id);
+               	  	    $('input[name="assist_performance_date"]').val(row.date);	
+		 	    $('.assist_content_textarea').val(data[0]["assist_content"]);
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+	      }
+
+	      if(field=="complete"){
+	          $('#complete_Modal').modal({backdrop: 'static', show: 'toggle'});
+                   var data = {
+                   	get_complete_performance_data:JSON.stringify({"complete_performance_number":row.id}) 
+               	   }               
+                  $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_Nov",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+               	  	    $('input[name="complete_performance_number"]').val(row.id);
+               	  	    $('input[name="complete_performance_date"]').val(row.date);	
+		 	    $('.complete_content_textarea').val(data[0]["complete"]);
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+	      }
+ 
+	      if(field=="remarks"){
+	          $('#remarks_Modal').modal({backdrop: 'static', show: 'toggle'});
+                   var data = {
+                   	get_remarks_performance_data:JSON.stringify({"remarks_performance_number":row.id}) 
+               	   }               
+                  $.ajax({
+                    type: "post",
+                    url: "/employee/performance_related_Nov",
+                    async: false,
+                    data:data,
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (status == "success") {
+               	  	    $('input[name="remarks_performance_number"]').val(row.id);
+               	  	    $('input[name="remarks_performance_date"]').val(row.date);	
+		 	    $('.remarks_content_textarea').val(data[0]["remarks"]);
+                        }
+                    },
+                    complete: function () {
+                    }
+                });
+	      }
+	  });
+
 
           $table.on('all.bs.table', function (e, name, args) {
             console.log(name, args);
@@ -323,7 +610,7 @@
             });
 
             $remove.prop('disabled', true);
-          });
+            });
 
 
           $add.click(function(){
@@ -353,7 +640,21 @@
               $table.bootstrapTable('selectPage','last')
           });
 
+	 $('#content_save').click(function() {
+            $('#form').submit();        
+         })
 
+	 $('#assist_content_save').click(function() {
+            $('#assist_form').submit();        
+         })
+
+	 $('#complete_content_save').click(function() {
+            $('#complete_form').submit();        
+         })
+
+	 $('#remarks_content_save').click(function() {
+            $('#remarks_form').submit();        
+         })
       });
 
     </script>
@@ -361,4 +662,4 @@
 {% endblock %}
 
   </body>
-</html>
+</html>remakrs_performance_dateremakrs_performance_date

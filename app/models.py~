@@ -70,12 +70,6 @@ class User(UserMixin,db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
-
-
-
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -106,7 +100,6 @@ class Contract(db.Model):
     path = db.Column(db.String(64),index=True)
     upload_date = db.Column(db.String(64),index=True)
 
-
     def __repr__(self):
         return '<Contract %r>' % self.name
 
@@ -123,8 +116,6 @@ class Receipts(db.Model):
 
     def __repr__(self):
         return '<Contract %r>' % self.name
-
-
 
 
 #合同结算模型

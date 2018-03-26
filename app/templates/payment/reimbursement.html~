@@ -151,39 +151,7 @@
         function initTable() {
 
         window.operateEvents = {
-            'click .write_purposes': function (e, value, row, index) {
-	   if(row.purchase_order=="edit"){
-	    	alert("请先填写好合同编号");
-	     }    		
-	     $('#purpose_Modal').modal('toggle');
-
-               var data = {
-                   get_number_data:JSON.stringify({"number":row.number}) 
-               }               
- 
-               $.ajax({
-                    type: "post",
-                    url: "/payment/reimbursement",
-                    async: false,
-                    data:data,
-                    dataType: 'JSON',
-                    success: function (data, status) {
-                        if (status == "success") {
-			    $('input[name="reimbursement_number"]').val(row.number);
-			    $('input[name="purpose1"]').val(data[0]['purpose1']);
-			    $('input[name="amount1"]').val(data[0]['amount1']);
-			    $('input[name="purpose2"]').val(data[0]['purpose2']);
-			    $('input[name="amount2"]').val(data[0]['amount2']);
-			    $('input[name="purpose3"]').val(data[0]['purpose3']);
-			    $('input[name="amount3"]').val(data[0]['amount3']);
-			    $('input[name="purpose4"]').val(data[0]['purpose4']);
-			    $('input[name="amount4"]').val(data[0]['amount4']);		
-                        }
-                    },
-                    complete: function () {
-                    }
-                });
-            },        
+   
         };
 
         //先销毁表格
@@ -308,7 +276,7 @@
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
-                            alert('提交数据成功');
+                            //alert('提交数据成功');
                         }
                     },
 {#                    error: function () {#}
@@ -362,12 +330,8 @@
 
 	 $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
 	   if(field=="purpose_all"){
-
-	       if(row.purchase_order=="edit"){
-	    	    alert("请先填写好合同编号");
-	       }else{
 	           $('#purpose_Modal').modal('toggle');
-                        var data = {
+                   var data = {
                    	get_number_data:JSON.stringify({"number":row.number}) 
                	   }               
                   $.ajax({
@@ -394,7 +358,7 @@
                 });
 	       } 
 
-	       }  
+	       
           });
 	 
 

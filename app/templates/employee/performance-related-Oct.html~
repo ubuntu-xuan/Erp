@@ -131,7 +131,7 @@
                 sortable: true,    
                 editable: {
                     type: 'text',
-                    emptytext: "-",  
+                    emptytext: "日期",  
                     title: '日期',
                     validate: function (value) {
                         value = $.trim(value);
@@ -150,7 +150,7 @@
                 align: 'center',
                 editable: {
                     type: 'text',
-                    emptytext: "-", 
+                    emptytext: "工作地点", 
                     title: '工作地点',
                     validate: function (value) {
                         value = $.trim(value);
@@ -165,7 +165,7 @@
                 align: 'center',
                 editable: {
                     type: 'text',
-                    emptytext: "-", 
+                    emptytext: "工作内容", 
                     title: '工作内容',
                     validate: function (value) {
                         value = $.trim(value);
@@ -180,7 +180,7 @@
                 align: 'center',
                 editable: {
                     type: 'text',
-                    emptytext: "-", 
+                    emptytext: "工作完成情况", 
                     title: '工作完成情况',
                     validate: function (value) {
                         value = $.trim(value);
@@ -199,7 +199,7 @@
                 align: 'center',
                 editable: {
                     type: 'text',
-                    emptytext: "-", 
+                    emptytext: "备注", 
                     title: '备注',
                 },                 
             }],

@@ -386,14 +386,14 @@
 {#            '<i class="glyphicon glyphicon-remove"></i>',#}'查看',
             '</a>',' ',
             '<a class="create_productions" href="javascript:;" title="生成生产通知单">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成生产单',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生产单',
             ' ',
             '<a class="create_delivery" href="javascript:;" title="生成送货单">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成送货单',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'送货单',
 
             '</a>',' ',
             '<a class="create_contract_account" href="javascript:;" title="添加到订单结算表">',
-{#            '<i class="glyphicon glyphicon-remove"></i>',#}'生成结算表',
+{#            '<i class="glyphicon glyphicon-remove"></i>',#}'结算表',
             '</a>',' ',
            ].join('');
         }

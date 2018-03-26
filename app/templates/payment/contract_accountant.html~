@@ -243,12 +243,13 @@
             columns: [{
                 field: 'state',
                 checkbox: true,
-	        footerFormatter:'合计',
+	        
             },{
                 field: 'order_date',
                 title: '日期',
                 align: 'center',
                 sortable: true,
+		footerFormatter:'合计',
 
             },{
                 field: 'purchase_order',
@@ -604,7 +605,7 @@
                     	    dataType: 'JSON',
                     	    success: function (data, status) {
                         	if (status == "success") {		
-                           	    window.open("/data/" + data["filename"]);	
+                           	    //window.open("/data/" + data["filename"]);	
                         	}
                     	    },
                     	    complete: function () {

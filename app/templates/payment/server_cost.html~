@@ -222,12 +222,12 @@
 
     <script>
     $(document).ready(function(){
-	$('#server_cost_Modal').modal('show');
+	$('#server_cost_Modal').modal({backdrop: 'static', show: 'show'});
      
-        $('#service_save').click(function() {
+         $('#service_save').click(function() {
             $('#form').submit();        
     
-        })
+         })
     })
 
 

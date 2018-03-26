@@ -330,10 +330,8 @@
 
 	 $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
 	   if(field=="purpose_all"){
-
-
 	           $('#purpose_Modal').modal('toggle');
-                        var data = {
+                   var data = {
                    	get_number_data:JSON.stringify({"number":row.number}) 
                	   }               
                   $.ajax({
@@ -344,6 +342,7 @@
                     dataType: 'JSON',
                     success: function (data, status) {
                         if (status == "success") {
+			    alert(data);
 			    $('input[name="reimbursement_number"]').val(row.number);
 			    $('input[name="purpose1"]').val(data[0]['purpose1']);
 			    $('input[name="amount1"]').val(data[0]['amount1']);
