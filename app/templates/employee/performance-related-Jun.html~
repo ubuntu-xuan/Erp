@@ -301,7 +301,7 @@
         //初始化表格,动态从服务器加载数据
         $("#table").bootstrapTable({
 {#            method: "get",  //使用get请求到服务器获取数据#}
-            url: '/employee/performance_related_June/return_json',
+            url: '/employee/performance_related_Jun/return_json',
             striped: true,  //表格显示条纹
             pagination: true, //启动分页
             pageSize: 50,  //每页显示的记录数
@@ -401,7 +401,7 @@
             onEditableSave: function (field, row, oldValue, $el) {
                 $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     data: {
                         'row':row,
                         'oldValue':oldValue,
@@ -497,7 +497,7 @@
                	   }               
                   $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     async: false,
                     data:data,
                     dataType: 'JSON',
@@ -520,7 +520,7 @@
                	   }               
                   $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     async: false,
                     data:data,
                     dataType: 'JSON',
@@ -543,7 +543,7 @@
                	   }               
                   $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     async: false,
                     data:data,
                     dataType: 'JSON',
@@ -566,7 +566,7 @@
                	   }               
                   $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     async: false,
                     data:data,
                     dataType: 'JSON',
@@ -593,7 +593,7 @@
 
             $.ajax({
                     type:'POST',
-                    url:'/employee/performance_related_June',
+                    url:'/employee/performance_related_Jun',
                     async: false,
                     data:{
                         'ids':ids,
@@ -617,7 +617,7 @@
 {#              var ids = getIdSelections();#}
               $.ajax({
                     type: "post",
-                    url: "/employee/performance_related_June",
+                    url: "/employee/performance_related_Jun",
                     async: false,
                     data:{
 {#                        'ids':ids,#}
@@ -636,7 +636,7 @@
                     }
                 });
 
-              $table.bootstrapTable('refresh', {url: '/employee/performance_related_June/return_json'});
+              $table.bootstrapTable('refresh', {url: '/employee/performance_related_Jun/return_json'});
               $table.bootstrapTable('selectPage','last')
           });
 

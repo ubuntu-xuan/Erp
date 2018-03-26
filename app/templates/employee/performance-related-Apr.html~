@@ -56,10 +56,10 @@
                 <div class="col-md-12" >
 
                     <ul id="myTab" class="nav nav-tabs">
-	               <li class="active"><a href="#Jan" data-toggle="tab">一月</a></li>
+	               <li><a href="#Jan" data-toggle="tab">一月</a></li>
 	               <li><a href="#Feb" data-toggle="tab">二月</a></li>
 	               <li><a href="#Mar" data-toggle="tab">三月</a></li>
-	               <li><a href="#Apr" data-toggle="tab">四月</a></li>
+	               <li class="active"><a href="#Apr" data-toggle="tab">四月</a></li>
 	               <li><a href="#May" data-toggle="tab">五月</a></li>
 	               <li><a href="#Jun" data-toggle="tab">六月</a></li>
 	               <li><a href="#Jul" data-toggle="tab">七月</a></li>
